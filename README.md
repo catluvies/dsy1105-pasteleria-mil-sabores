@@ -37,7 +37,7 @@ Este proceso se llama "Gradle Sync" y puede tardar unos minutos la primera vez.
 Selecciona un emulador o un dispositivo físico.
 Presiona el botón de 'Run' (el ícono de triángulo verde) en la barra superior.
 
-![Botón Run de Android Studio](./images/img-readme/RUNANDROIDSTUDIO.png)
+![Botón Run de Android Studio](docs/images/RUNANDROIDSTUDIO.png)
 
 ---
 
