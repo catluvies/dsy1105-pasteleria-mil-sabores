@@ -7,14 +7,14 @@
 
 ---
 
-## Alcance del Proyecto.
+## Alcance del Proyecto:
 
 Este proyecto consiste en el desarrollo de una aplicación móvil de e-commerce para la "Pastelería Mil Sabores", una empresa con 50 años de trayectoria.
 Nuestro objetivo es modernizar su sistema de ventas online, ofreciendo una experiencia de compra accesible, intuitiva y que refleje la calidad y tradición de la marca.
 
 ---
 
-## Pasos para instalación y ejecución.
+## Pasos para instalación y ejecución:
 
 1. Clona el repositorio
 
@@ -62,7 +62,7 @@ Presiona el botón de 'Run' (el ícono de triángulo verde) en la barra superior
 
 ---
 
-## Guía de Estilo Visual.
+## Guía de Estilo Visual:
 
 #### Colores:
 
