@@ -48,6 +48,9 @@ Presiona el botón de 'Run' (el ícono de triángulo verde) en la barra superior
 * Carrito de Compras: Para manejar el guardado de datos en el dispositivo. 
 
 ---
+## Hitos
+* Se logro hacer el commit inicial
+---
 
 ## Stack Tecnológico:
 
