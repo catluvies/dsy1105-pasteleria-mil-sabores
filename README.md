@@ -49,7 +49,7 @@ Presiona el botón de 'Run' (el ícono de triángulo verde) en la barra superior
 
 ---
 ## Hitos
-* Se logro hacer el commit inicial
+* Se logró hacer el commit inicial
 ---
 
 ## Stack Tecnológico:
