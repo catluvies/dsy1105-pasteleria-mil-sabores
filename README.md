@@ -43,11 +43,14 @@ Presiona el botón de 'Run' (el ícono de triángulo verde) en la barra superior
 
 ## Funcionalidades a Desarrollar:
 
+
 * Registro y Login: Para implementar formularios con validación de datos.
 * Catálogo de Productos: La pantalla principal para mostrar la interfaz y la navegación.
 * Carrito de Compras: Para manejar el guardado de datos en el dispositivo. 
 * Crear una vista para el administrador.
 * Administrar productos del catalogo mediante perfil de admin.
+* Describir objetivos de usuario y administrador.
+
 
 ---
 ## Hitos
