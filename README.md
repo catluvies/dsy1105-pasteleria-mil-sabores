@@ -49,7 +49,7 @@ Presiona el botón de 'Run' (el ícono de triángulo verde) en la barra superior
 * Carrito de Compras: Para manejar el guardado de datos en el dispositivo. 
 * Crear una vista para el administrador.
 * Administrar productos del catalogo mediante perfil de admin.
-* Describir objetivos de usuario y administrador.
+
 
 
 ---
