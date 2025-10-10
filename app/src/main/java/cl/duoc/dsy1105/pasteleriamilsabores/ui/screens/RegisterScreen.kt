@@ -15,7 +15,7 @@ import cl.duoc.dsy1105.pasteleriamilsabores.ui.theme.PasteleriaMilSaboresTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RegisterScreen() {
+fun RegisterScreen(onLoginClick: () -> Unit) {
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -100,7 +100,7 @@ fun RegisterScreen() {
             }
 
             TextButton(
-                onClick = {  }
+                onClick = onLoginClick
             ) {
                 Text(
                     text = "¿Ya tienes cuenta? Inicia Sesión",
@@ -116,6 +116,6 @@ fun RegisterScreen() {
 @Composable
 fun RegisterScreenPreview() {
     PasteleriaMilSaboresTheme {
-        RegisterScreen()
+        RegisterScreen(onLoginClick = {})
     }
 }
