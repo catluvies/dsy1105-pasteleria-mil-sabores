@@ -14,6 +14,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cl.duoc.dsy1105.pasteleriamilsabores.R
+import cl.duoc.dsy1105.pasteleriamilsabores.data.sampleProductList
 import cl.duoc.dsy1105.pasteleriamilsabores.model.Product
 import cl.duoc.dsy1105.pasteleriamilsabores.ui.theme.PasteleriaMilSaboresTheme
 
@@ -155,14 +156,7 @@ fun ProductDetailsScreen(product: Product) {
 @Preview(showBackground = true)
 @Composable
 fun ProductDetailsScreenPreview() {
-    val sampleProduct = Product(
-        id = 1,
-        name = "Torta de Chocolate",
-        description = "Deliciosa pastel de chocolate con tres capas de bizcocho esponjoso y relleno de ganache de chocolate "
-                    + "belga. Decorado con virutas de chocolate y crema batida",
-        price = 15990,
-        imageResId = R.drawable.torta_chocolate
-    )
+    val sampleProduct = sampleProductList.first()
 
     PasteleriaMilSaboresTheme {
         ProductDetailsScreen(sampleProduct)
