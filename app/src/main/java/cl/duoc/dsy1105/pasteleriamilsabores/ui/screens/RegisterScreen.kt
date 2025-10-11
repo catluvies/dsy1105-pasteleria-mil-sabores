@@ -15,16 +15,18 @@ import cl.duoc.dsy1105.pasteleriamilsabores.ui.theme.PasteleriaMilSaboresTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreen(onRegisterClick: () -> Unit) {
+fun RegisterScreen(onLoginClick: () -> Unit) {
+    var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
                     Text(
-                        text = "Iniciar Sesión",
+                        text = "Crear Cuenta",
                         color = MaterialTheme.colorScheme.primary,
                         style = MaterialTheme.typography.titleLarge
                     )
@@ -41,20 +43,23 @@ fun LoginScreen(onRegisterClick: () -> Unit) {
             verticalArrangement = Arrangement.spacedBy(space = 20.dp)
         ) {
 
+
             Text(
-                text = "Pastelería Mil Sabores",
+                text = "Únete a Mil Sabores",
                 color = MaterialTheme.colorScheme.primary,
                 style = MaterialTheme.typography.headlineLarge,
                 textAlign = TextAlign.Center,
             )
 
 
-            Text(
-                text = "Bienvenido",
-                color = MaterialTheme.colorScheme.secondary,
-                style = MaterialTheme.typography.bodyLarge,
-                textAlign = TextAlign.Center
+            OutlinedTextField(
+                value = name,
+                onValueChange = { name = it },
+                label = { Text("Nombre Completo") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                modifier = Modifier.fillMaxWidth()
             )
+
 
             OutlinedTextField(
                 value = email,
@@ -63,6 +68,7 @@ fun LoginScreen(onRegisterClick: () -> Unit) {
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 modifier = Modifier.fillMaxWidth()
             )
+
 
             OutlinedTextField(
                 value = password,
@@ -74,22 +80,30 @@ fun LoginScreen(onRegisterClick: () -> Unit) {
             )
 
 
+            OutlinedTextField(
+                value = confirmPassword,
+                onValueChange = { confirmPassword = it },
+                label = { Text("Confirmar Contraseña") },
+                visualTransformation = PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                modifier = Modifier.fillMaxWidth()
+            )
+
             Button(
-                onClick = { },
+                onClick = {  },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = "Iniciar Sesión",
+                    text = "Registrarse",
                     style = MaterialTheme.typography.titleMedium
                 )
             }
 
-
             TextButton(
-                onClick = onRegisterClick
+                onClick = onLoginClick
             ) {
                 Text(
-                    text = "¿No tienes cuenta? Regístrate",
+                    text = "¿Ya tienes cuenta? Inicia Sesión",
                     color = MaterialTheme.colorScheme.secondary,
                     style = MaterialTheme.typography.bodyMedium
                 )
@@ -100,8 +114,8 @@ fun LoginScreen(onRegisterClick: () -> Unit) {
 
 @Preview(showBackground = true)
 @Composable
-fun LoginScreenPreview() {
+fun RegisterScreenPreview() {
     PasteleriaMilSaboresTheme {
-        LoginScreen(onRegisterClick = {})
+        RegisterScreen(onLoginClick = {})
     }
 }
