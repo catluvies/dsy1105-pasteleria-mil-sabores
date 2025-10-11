@@ -7,12 +7,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import cl.duoc.dsy1105.pasteleriamilsabores.ui.screens.LoginScreen
-import cl.duoc.dsy1105.pasteleriamilsabores.ui.screens.RegisterScreen
+import cl.duoc.dsy1105.pasteleriamilsabores.navigation.AppNavigation
 import cl.duoc.dsy1105.pasteleriamilsabores.ui.theme.PasteleriaMilSaboresTheme
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,28 +19,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-
-                    val navController = rememberNavController()
-
-
-                    NavHost(navController = navController, startDestination = "login") {
-
-                        composable("login") {
-                            LoginScreen(
-                                onRegisterClick = {
-                                    navController.navigate("register")
-                                }
-                            )
-                        }
-
-                        composable("register") {
-                            RegisterScreen(
-                                onLoginClick = {
-                                    navController.navigate("login")
-                                }
-                            )
-                        }
-                    }
+                    AppNavigation()
                 }
             }
         }
