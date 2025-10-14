@@ -17,6 +17,7 @@ import cl.duoc.dsy1105.pasteleriamilsabores.data.sampleProductList
 import cl.duoc.dsy1105.pasteleriamilsabores.ui.components.ProductCard
 import cl.duoc.dsy1105.pasteleriamilsabores.ui.theme.PasteleriaMilSaboresTheme
 
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CatalogScreen() {

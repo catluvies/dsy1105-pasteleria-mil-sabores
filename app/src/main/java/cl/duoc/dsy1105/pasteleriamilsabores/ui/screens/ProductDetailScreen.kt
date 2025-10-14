@@ -7,6 +7,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -14,24 +15,27 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cl.duoc.dsy1105.pasteleriamilsabores.R
-import cl.duoc.dsy1105.pasteleriamilsabores.data.sampleProductList
+import cl.duoc.dsy1105.pasteleriamilsabores.data.AppDatabase
 import cl.duoc.dsy1105.pasteleriamilsabores.model.Product
 import cl.duoc.dsy1105.pasteleriamilsabores.ui.theme.PasteleriaMilSaboresTheme
+import cl.duoc.dsy1105.pasteleriamilsabores.viewmodel.CartViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProductDetailsScreen(product: Product) {
+fun ProductDetailsScreen(
+    product: Product
+) {
+    // Create DB + ViewModel manually (no factory for simplicity)
+    val context = LocalContext.current
+    val db = remember { AppDatabase.getDatabase(context) }
+    val cartViewModel = remember { CartViewModel(db.cartDao()) }
+
     var quantity by remember { mutableStateOf(1) }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = {
-                    Text(
-                        text = "Detalle",
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                }
+                title = { Text(text = product.name, color = MaterialTheme.colorScheme.primary) }
             )
         }
     ) { innerPadding ->
@@ -40,7 +44,7 @@ fun ProductDetailsScreen(product: Product) {
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            // 🖼️ Edge-to-edge image
+            // 🖼️ Product image
             Image(
                 painter = painterResource(id = product.imageResId),
                 contentDescription = product.name,
@@ -50,7 +54,7 @@ fun ProductDetailsScreen(product: Product) {
                 contentScale = ContentScale.Crop
             )
 
-            // 🧁 Content area (padded + left aligned)
+            // 🧁 Product details
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -60,37 +64,24 @@ fun ProductDetailsScreen(product: Product) {
                 // Product name
                 Text(
                     text = product.name,
-                    style = MaterialTheme.typography.headlineMedium,
+                    style = MaterialTheme.typography.headlineSmall,
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Bold
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                //Price
-                Text(
-                    text = "Precio: $${product.price}",
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontSize = 24.sp, // Override size larger from 16.sp
-                        fontWeight = FontWeight.Bold
-                    ),
-                    color = MaterialTheme.colorScheme.secondary
-                )
-
-                Spacer(modifier = Modifier.height(40.dp))
-
-                // Description
+                // Description header
                 Text(
                     text = "Descripción",
                     style = MaterialTheme.typography.titleMedium.copy(
-                        fontSize = 18.sp, // Override size smaller from 22.sp
+                        fontSize = 18.sp,
                         fontWeight = FontWeight.SemiBold
                     ),
                     color = MaterialTheme.colorScheme.primary
                 )
 
-                Spacer(modifier = Modifier.height(20.dp))
-
+                // Description text
                 Text(
                     text = product.description,
                     style = MaterialTheme.typography.bodyLarge,
@@ -98,24 +89,22 @@ fun ProductDetailsScreen(product: Product) {
                     textAlign = TextAlign.Start
                 )
 
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-                // Quantity selector
-
+                // Price
                 Text(
-                    text = "Cantidad",
+                    text = "Precio: $${product.price}",
                     style = MaterialTheme.typography.titleMedium.copy(
-                        fontSize = 18.sp, // Override size smaller from 22.sp
-                        fontWeight = FontWeight.SemiBold
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold
                     ),
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.secondary
                 )
 
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(24.dp))
 
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+                // ➕ Quantity controls
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Button(
                         onClick = { if (quantity > 1) quantity-- },
                         contentPadding = PaddingValues(0.dp),
@@ -141,9 +130,12 @@ fun ProductDetailsScreen(product: Product) {
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Add to cart button
+                // 🛒 Add to cart button
                 Button(
-                    onClick = { /* TODO: Add to cart action */ },
+                    onClick = {
+                        cartViewModel.addProduct(product.id, quantity)
+                        println("🛒 Added ${product.name} x$quantity to cart")
+                    },
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text("Agregar $quantity al carrito")
@@ -153,12 +145,19 @@ fun ProductDetailsScreen(product: Product) {
     }
 }
 
+// 👇 Preview with sample product
 @Preview(showBackground = true)
 @Composable
-fun ProductDetailsScreenPreview() {
-    val sampleProduct = sampleProductList.first()
+fun ProductDetailsPreview() {
+    val sample = Product(
+        id = 1,
+        name = "Torta de Chocolate",
+        description = "Deliciosa torta húmeda con cobertura de ganache.",
+        price = 15990,
+        imageResId = R.drawable.torta_chocolate
+    )
 
     PasteleriaMilSaboresTheme {
-        ProductDetailsScreen(sampleProduct)
+        ProductDetailsScreen(sample)
     }
 }
