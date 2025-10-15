@@ -9,135 +9,106 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import cl.duoc.dsy1105.pasteleriamilsabores.model.User
-import cl.duoc.dsy1105.pasteleriamilsabores.ui.theme.PasteleriaMilSaboresTheme
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import cl.duoc.dsy1105.pasteleriamilsabores.viewmodel.UserSessionViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserProfileScreen(
-    // ----- PUNTO DE CONEXIÓN FUTURO #3: ENTRADA DE DATOS REALES -----
-    // En la aplicación real, este objeto 'user' no vendrá de 'sampleUser',
-    // sino que será pasado a través del sistema de navegación después
-    // de que el usuario inicie sesión o se registre.
-    user: User
+    userSessionViewModel: UserSessionViewModel,
+    onNavigateBack: () -> Unit,
+    onLogout: () -> Unit
 ) {
-
-    var address by remember { mutableStateOf(user.address) }
-    var phone by remember { mutableStateOf(user.phone) }
-
-    val userHasData = user.address.isNotBlank() && user.phone.isNotBlank()
-    var isEditing by remember { mutableStateOf(!userHasData) }
+    val user by userSessionViewModel.currentUserState.collectAsStateWithLifecycle()
+    val currentUser = user
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = {
-                    Text(
-                        text = "Mi Perfil",
-                        color = MaterialTheme.colorScheme.primary,
-                        style = MaterialTheme.typography.titleLarge
-                    )
-                },
+                title = { Text("Mi Perfil") },
                 navigationIcon = {
-                    IconButton(onClick = {
-                        // ----- PUNTO DE CONEXIÓN FUTURO #2: ACCIÓN DE LA FLECHA ATRÁS -----
-                        // Aquí se conectará la lógica de navegación para volver a la
-                        // pantalla anterior (probablemente el catálogo).
-                        // Ejemplo: navController.popBackStack()
-                    }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Volver atrás"
-                        )
+                    IconButton(onClick = onNavigateBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Volver atrás")
                     }
                 }
             )
         }
     ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues = innerPadding)
-                .padding(all = 16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(space = 16.dp)
-        ) {
-            OutlinedTextField(
-                value = user.fullName,
-                onValueChange = {},
-                label = { Text("Nombre Completo") },
-                modifier = Modifier.fillMaxWidth(),
-                readOnly = true
-            )
-            OutlinedTextField(
-                value = user.email,
-                onValueChange = {},
-                label = { Text("Email") },
-                modifier = Modifier.fillMaxWidth(),
-                readOnly = true
-            )
+        if (currentUser != null) {
+            var address by remember(currentUser.address) { mutableStateOf(currentUser.address) }
+            var phone by remember(currentUser.phone) { mutableStateOf(currentUser.phone) }
+            val userHasData = currentUser.address.isNotBlank() && currentUser.phone.isNotBlank()
+            var isEditing by remember { mutableStateOf(!userHasData) }
 
-            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-
-            OutlinedTextField(
-                value = address,
-                onValueChange = { address = it },
-                label = { Text("Tu Dirección de Envío") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                modifier = Modifier.fillMaxWidth(),
-                readOnly = !isEditing
-            )
-            OutlinedTextField(
-                value = phone,
-                onValueChange = { phone = it },
-                label = { Text("Tu Número de Teléfono") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-                modifier = Modifier.fillMaxWidth(),
-                readOnly = !isEditing
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Button(
-                onClick = {
-                    if (isEditing) {
-
-                        // Justo aquí, antes de cambiar el estado de la UI, se debe
-                        // llamar a la lógica de negocio para guardar los datos
-
-                    }
-                    // Se invierte el estado de edición para cambiar la UI
-                    isEditing = !isEditing
-                },
-                modifier = Modifier.fillMaxWidth()
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .padding(all = 16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(space = 16.dp)
             ) {
-                val buttonText = if (isEditing) "Guardar Cambios" else "Editar"
-                Text(
-                    text = buttonText,
-                    style = MaterialTheme.typography.titleMedium
+                OutlinedTextField(
+                    value = currentUser.fullName,
+                    onValueChange = {},
+                    label = { Text("Nombre Completo") },
+                    modifier = Modifier.fillMaxWidth(),
+                    readOnly = true
                 )
+                OutlinedTextField(
+                    value = currentUser.email,
+                    onValueChange = {},
+                    label = { Text("Email") },
+                    modifier = Modifier.fillMaxWidth(),
+                    readOnly = true
+                )
+
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
+                OutlinedTextField(
+                    value = address,
+                    onValueChange = { address = it },
+                    label = { Text("Tu Dirección de Envío") },
+                    // ================== CORREGIDO ==================
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                    // ===============================================
+                    modifier = Modifier.fillMaxWidth(),
+                    readOnly = !isEditing
+                )
+                OutlinedTextField(
+                    value = phone,
+                    onValueChange = { phone = it },
+                    label = { Text("Tu Número de Teléfono") },
+                    // ================== CORREGIDO ==================
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                    // ===============================================
+                    modifier = Modifier.fillMaxWidth(),
+                    readOnly = !isEditing
+                )
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                Button(
+                    onClick = {
+                        if (isEditing) {
+                            userSessionViewModel.updateUserData(address, phone)
+                        }
+                        isEditing = !isEditing
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    val buttonText = if (isEditing) "Guardar Cambios" else "Editar"
+                    Text(buttonText, style = MaterialTheme.typography.titleMedium)
+                }
+
+                OutlinedButton(
+                    onClick = onLogout,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Cerrar Sesión")
+                }
             }
         }
-    }
-}
-
-
-@Preview(showBackground = true, name = "Usuario Nuevo Sin Datos")
-@Composable
-fun UserProfileScreenPreview_NewUser() {
-    PasteleriaMilSaboresTheme {
-        val newUser = User(1, "Usuario Nuevo", "nuevo@email.com", "", "")
-        UserProfileScreen(user = newUser)
-    }
-}
-
-@Preview(showBackground = true, name = "Usuario Existente Con Datos")
-@Composable
-fun UserProfileScreenPreview_ExistingUser() {
-    PasteleriaMilSaboresTheme {
-        val existingUser = User(1, "Ana López", "ana@email.com", "Avenida Siempre Viva 742", "+56912345678")
-        UserProfileScreen(user = existingUser)
     }
 }

@@ -19,17 +19,19 @@ import cl.duoc.dsy1105.pasteleriamilsabores.ui.theme.PasteleriaMilSaboresTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CatalogScreen() {
+fun CatalogScreen(onProfileClick: () -> Unit) { // La firma ya está correcta
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("Nuestros Productos", style = MaterialTheme.typography.headlineLarge) },
                 actions = {
+                    // ================== SOLUCIÓN ==================
+                    // Volvemos a envolver el IconButton con el Surface
                     Surface(
                         shape = CircleShape,
                         color = MaterialTheme.colorScheme.primary
                     ) {
-                        IconButton(onClick = {}) { // onClick vacío
+                        IconButton(onClick = onProfileClick) { // El onClick ya está conectado
                             Icon(
                                 Icons.Default.Person,
                                 contentDescription = "Perfil",
@@ -37,6 +39,7 @@ fun CatalogScreen() {
                             )
                         }
                     }
+                    // ===============================================
 
                     Spacer(modifier = Modifier.width(8.dp))
 
@@ -44,7 +47,7 @@ fun CatalogScreen() {
                         shape = CircleShape,
                         color = MaterialTheme.colorScheme.primary
                     ) {
-                        IconButton(onClick = {}) { // onClick vacío
+                        IconButton(onClick = { /* Lógica del carrito irá aquí */ }) {
                             Icon(
                                 Icons.Default.ShoppingCart,
                                 contentDescription = "Carrito",
@@ -66,17 +69,8 @@ fun CatalogScreen() {
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(sampleProductList) { product ->
-                // Llamada súper simple. La tarjeta solo muestra la información.
                 ProductCard(product = product)
             }
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun CatalogScreenPreview() {
-    PasteleriaMilSaboresTheme {
-        CatalogScreen()
     }
 }
