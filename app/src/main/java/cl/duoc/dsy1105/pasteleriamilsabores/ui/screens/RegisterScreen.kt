@@ -11,12 +11,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import cl.duoc.dsy1105.pasteleriamilsabores.model.User
-import cl.duoc.dsy1105.pasteleriamilsabores.ui.theme.PasteleriaMilSaboresTheme
 import cl.duoc.dsy1105.pasteleriamilsabores.viewmodel.RegisterViewModel
 import cl.duoc.dsy1105.pasteleriamilsabores.viewmodel.RegistrationEvent
 import kotlinx.coroutines.flow.collectLatest
@@ -25,7 +23,7 @@ import kotlinx.coroutines.flow.collectLatest
 @Composable
 fun RegisterScreen(
     onLoginClick: () -> Unit,
-    onRegisterSuccess: (User) -> Unit, // <-- NUEVO PARÁMETRO
+    onRegisterSuccess: (User) -> Unit,
     registerViewModel: RegisterViewModel = viewModel()
 ) {
     val uiState by registerViewModel.uiState.collectAsStateWithLifecycle()
@@ -35,7 +33,6 @@ fun RegisterScreen(
         registerViewModel.registrationEvent.collectLatest { event ->
             when (event) {
                 is RegistrationEvent.Success -> {
-                    // CAMBIO: En lugar de un Toast, llamamos a la función de éxito
                     onRegisterSuccess(event.user)
                 }
                 is RegistrationEvent.Error -> {
@@ -58,7 +55,7 @@ fun RegisterScreen(
                 .padding(paddingValues = innerPadding)
                 .padding(all = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(space = 16.dp) // Espaciado ajustado
+            verticalArrangement = Arrangement.spacedBy(space = 16.dp)
         ) {
 
             Text(
@@ -69,7 +66,7 @@ fun RegisterScreen(
 
             OutlinedTextField(
                 value = uiState.fullName,
-                onValueChange = registerViewModel::onFullNameChange, // Usando referencia de método
+                onValueChange = registerViewModel::onFullNameChange,
                 label = { Text("Nombre Completo") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                 modifier = Modifier.fillMaxWidth(),
