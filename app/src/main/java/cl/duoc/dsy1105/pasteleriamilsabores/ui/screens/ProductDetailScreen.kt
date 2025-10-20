@@ -2,6 +2,9 @@ package cl.duoc.dsy1105.pasteleriamilsabores.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -14,8 +17,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import cl.duoc.dsy1105.pasteleriamilsabores.R
 import cl.duoc.dsy1105.pasteleriamilsabores.data.AppDatabase
+import cl.duoc.dsy1105.pasteleriamilsabores.data.sampleProductList
 import cl.duoc.dsy1105.pasteleriamilsabores.model.Product
 import cl.duoc.dsy1105.pasteleriamilsabores.ui.theme.PasteleriaMilSaboresTheme
 import cl.duoc.dsy1105.pasteleriamilsabores.viewmodel.CartViewModel
@@ -23,7 +26,9 @@ import cl.duoc.dsy1105.pasteleriamilsabores.viewmodel.CartViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductDetailsScreen(
-    product: Product
+    product: Product,
+    onBack: () -> Unit = {},
+    onCartClick: () -> Unit = {}
 ) {
     // Create DB + ViewModel manually (no factory for simplicity)
     val context = LocalContext.current
@@ -35,7 +40,28 @@ fun ProductDetailsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = product.name, color = MaterialTheme.colorScheme.primary) }
+                title = {
+                    Text(
+                        text = product.name,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(
+                            imageVector = Icons.Filled.ArrowBack,
+                            contentDescription = "Volver"
+                        )
+                    }
+                },
+                actions = {
+                    IconButton(onClick = onCartClick) {
+                        Icon(
+                            imageVector = Icons.Filled.ShoppingCart,
+                            contentDescription = "Ir al carrito"
+                        )
+                    }
+                }
             )
         }
     ) { innerPadding ->
@@ -61,7 +87,6 @@ fun ProductDetailsScreen(
                     .padding(horizontal = 20.dp, vertical = 16.dp),
                 horizontalAlignment = Alignment.Start
             ) {
-                // Product name
                 Text(
                     text = product.name,
                     style = MaterialTheme.typography.headlineSmall,
@@ -71,7 +96,6 @@ fun ProductDetailsScreen(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Description header
                 Text(
                     text = "Descripción",
                     style = MaterialTheme.typography.titleMedium.copy(
@@ -81,7 +105,6 @@ fun ProductDetailsScreen(
                     color = MaterialTheme.colorScheme.primary
                 )
 
-                // Description text
                 Text(
                     text = product.description,
                     style = MaterialTheme.typography.bodyLarge,
@@ -91,7 +114,6 @@ fun ProductDetailsScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Price
                 Text(
                     text = "Precio: $${product.price}",
                     style = MaterialTheme.typography.titleMedium.copy(
@@ -149,15 +171,12 @@ fun ProductDetailsScreen(
 @Preview(showBackground = true)
 @Composable
 fun ProductDetailsPreview() {
-    val sample = Product(
-        id = 1,
-        name = "Torta de Chocolate",
-        description = "Deliciosa torta húmeda con cobertura de ganache.",
-        price = 15990,
-        imageResId = R.drawable.torta_chocolate
-    )
-
+    val sample = sampleProductList[1]
     PasteleriaMilSaboresTheme {
-        ProductDetailsScreen(sample)
+        ProductDetailsScreen(
+            product = sample,
+            onBack = {},
+            onCartClick = {}
+        )
     }
 }

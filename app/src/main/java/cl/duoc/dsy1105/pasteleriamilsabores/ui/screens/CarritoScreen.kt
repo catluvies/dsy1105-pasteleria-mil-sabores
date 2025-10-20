@@ -159,51 +159,37 @@ private fun CartRow(
 
 /* ===================== PREVIEWS ===================== */
 
-/**
- * DAO en memoria solo para previews.
- * No toca Room real; evita errores de KAPT en el render.
- */
-private class PreviewCartDao(initial: List<CartItem> = emptyList()) : CartDao {
-    private val state = MutableStateFlow(initial)
+@Preview(showBackground = true, name = "Carrito (preview)")
+@Composable
+private fun CarritoScreenPreview() {
+    // DAO en memoria solo para el preview
+    val viewModel = remember {
+        val state = MutableStateFlow<List<CartItem>>(emptyList())
 
-    override fun getAll(): Flow<List<CartItem>> = state
-
-    override suspend fun upsert(item: CartItem) {
-        state.update { current ->
-            val idx = current.indexOfFirst { it.productId == item.productId }
-            if (idx == -1) current + item else current.toMutableList().also { it[idx] = item }
+        val dao = object : CartDao {
+            override fun getAll(): Flow<List<CartItem>> = state
+            override suspend fun upsert(item: CartItem) {
+                val list = state.value.toMutableList()
+                val idx = list.indexOfFirst { it.productId == item.productId }
+                if (idx >= 0) list[idx] = item else list += item
+                state.value = list
+            }
+            override suspend fun delete(id: Int) {
+                state.value = state.value.filterNot { it.productId == id }
+            }
+            override suspend fun clear() {
+                state.value = emptyList()
+            }
         }
+
+        CartViewModel(dao)
     }
 
-    override suspend fun delete(id: Int) {
-        state.update { current -> current.filterNot { it.productId == id } }
-    }
-
-    override suspend fun clear() {
-        state.value = emptyList()
-    }
-}
-
-@Preview(showBackground = true, name = "Carrito vacío")
-@Composable
-private fun CarritoScreenPreviewEmpty() {
-    val vm = remember { CartViewModel(PreviewCartDao(emptyList())) }
     PasteleriaMilSaboresTheme {
-        CarritoScreen(onBack = {}, viewModel = vm)
+        CarritoScreen(
+            onBack = {},
+            viewModel = viewModel
+        )
     }
 }
 
-@Preview(showBackground = true, name = "Carrito con items")
-@Composable
-private fun CarritoScreenPreviewFilled() {
-    val p0 = sampleProductList.getOrNull(0)
-    val p1 = sampleProductList.getOrNull(1)
-    val initial = listOfNotNull(
-        p0?.let { CartItem(productId = it.id, quantity = 1) },
-        p1?.let { CartItem(productId = it.id, quantity = 3) }
-    )
-    val vm = remember { CartViewModel(PreviewCartDao(initial)) }
-    PasteleriaMilSaboresTheme {
-        CarritoScreen(onBack = {}, viewModel = vm)
-    }
-}
