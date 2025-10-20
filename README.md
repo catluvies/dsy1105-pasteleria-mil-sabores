@@ -49,12 +49,13 @@ Presiona el botón de 'Run' (el ícono de triángulo verde) en la barra superior
 * Carrito de Compras: Para manejar el guardado de datos en el dispositivo. 
 * Crear una vista para el administrador.
 * Administrar productos del catalogo mediante perfil de admin.
-
-
+* Recursos nativos: Galería y Cámara para subir productos como administrador.
 
 ---
+
 ## Hitos
 * Se logró hacer el commit inicial
+
 ---
 
 ## Stack Tecnológico:
@@ -81,14 +82,7 @@ Presiona el botón de 'Run' (el ícono de triángulo verde) en la barra superior
 #### Tipografía:
 
 * Títulos y Encabezados: Pacifico.
-* Textos generales: Lato. 
-
---- 
-
-## Pendientes:
-
-* Definir qué otras funcionalidades vamos a incluir.
-* Integración de Recursos Nativos: Integración de al menos dos funciones del teléfono (puede ser: cámara, galería, gps).
+* Textos generales: Lato.
 
 --- 
 
