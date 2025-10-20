@@ -1,107 +1,87 @@
 package cl.duoc.dsy1105.pasteleriamilsabores.ui.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import cl.duoc.dsy1105.pasteleriamilsabores.ui.theme.PasteleriaMilSaboresTheme
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import cl.duoc.dsy1105.pasteleriamilsabores.model.User
+import cl.duoc.dsy1105.pasteleriamilsabores.viewmodel.LoginEvent
+import cl.duoc.dsy1105.pasteleriamilsabores.viewmodel.LoginViewModel
+import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreen(onRegisterClick: () -> Unit) {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+fun LoginScreen(
+    loginViewModel: LoginViewModel,
+    onRegisterClick: () -> Unit,
+    onLoginSuccess: (User) -> Unit // Callback para notificar a la navegación
+) {
+    val uiState by loginViewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+
+    LaunchedEffect(key1 = true) {
+        loginViewModel.loginEvent.collectLatest { event ->
+            when (event) {
+                is LoginEvent.Success -> {
+                    Toast.makeText(context, "¡Bienvenido!", Toast.LENGTH_SHORT).show()
+                    onLoginSuccess(event.user)
+                }
+                is LoginEvent.Error -> {
+                    Toast.makeText(context, event.message, Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = "Iniciar Sesión",
-                        color = MaterialTheme.colorScheme.primary,
-                        style = MaterialTheme.typography.titleLarge
-                    )
-                }
-            )
-        }
+        topBar = { TopAppBar(title = { Text("Iniciar Sesión") }) }
     ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues = innerPadding)
+                .padding(innerPadding)
                 .padding(all = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(space = 20.dp)
         ) {
-
-            Text(
-                text = "Pastelería Mil Sabores",
-                color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.headlineLarge,
-                textAlign = TextAlign.Center,
-            )
-
-
-            Text(
-                text = "Bienvenido",
-                color = MaterialTheme.colorScheme.secondary,
-                style = MaterialTheme.typography.bodyLarge,
-                textAlign = TextAlign.Center
-            )
+            Text("Pastelería Mil Sabores", style = MaterialTheme.typography.headlineLarge, textAlign = TextAlign.Center)
+            Text("Bienvenido", style = MaterialTheme.typography.bodyLarge, textAlign = TextAlign.Center)
 
             OutlinedTextField(
-                value = email,
-                onValueChange = { email = it },
+                value = uiState.email,
+                onValueChange = loginViewModel::onEmailChange,
                 label = { Text("Email") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 modifier = Modifier.fillMaxWidth()
             )
-
             OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
+                value = uiState.password,
+                onValueChange = loginViewModel::onPasswordChange,
                 label = { Text("Contraseña") },
                 visualTransformation = PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 modifier = Modifier.fillMaxWidth()
             )
-
-
             Button(
-                onClick = { },
+                onClick = loginViewModel::login,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(
-                    text = "Iniciar Sesión",
-                    style = MaterialTheme.typography.titleMedium
-                )
+                Text("Iniciar Sesión")
             }
-
-
-            TextButton(
-                onClick = onRegisterClick
-            ) {
-                Text(
-                    text = "¿No tienes cuenta? Regístrate",
-                    color = MaterialTheme.colorScheme.secondary,
-                    style = MaterialTheme.typography.bodyMedium
-                )
+            TextButton(onClick = onRegisterClick) {
+                Text("¿No tienes cuenta? Regístrate")
             }
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun LoginScreenPreview() {
-    PasteleriaMilSaboresTheme {
-        LoginScreen(onRegisterClick = {})
     }
 }

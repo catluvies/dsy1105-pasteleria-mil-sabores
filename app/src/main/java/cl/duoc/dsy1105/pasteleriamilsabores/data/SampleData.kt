@@ -2,7 +2,6 @@ package cl.duoc.dsy1105.pasteleriamilsabores.data
 
 import cl.duoc.dsy1105.pasteleriamilsabores.R
 import cl.duoc.dsy1105.pasteleriamilsabores.model.Product
-
 val sampleProductList = listOf(
     Product(1, "Torta de Chocolate", "Descripción...", 45000, R.drawable.torta_chocolate),
     Product(2, "Torta de Frutas", "Descripción...", 50000, R.drawable.torta_chocolate),
@@ -16,3 +15,4 @@ val sampleProductList = listOf(
     Product(10, "Tiramisú Clásico", "Descripción...", 5500, R.drawable.torta_chocolate),
     Product(11, "Cheesecake", "Descripción...", 47000, R.drawable.torta_chocolate),
     Product(12, "Brownie", "Descripción...", 4000, R.drawable.torta_chocolate))
+

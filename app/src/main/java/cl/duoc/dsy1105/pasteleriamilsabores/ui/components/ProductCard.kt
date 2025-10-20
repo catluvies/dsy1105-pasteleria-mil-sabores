@@ -18,12 +18,7 @@ import androidx.compose.ui.unit.dp
 import cl.duoc.dsy1105.pasteleriamilsabores.data.sampleProductList
 import cl.duoc.dsy1105.pasteleriamilsabores.model.Product
 import cl.duoc.dsy1105.pasteleriamilsabores.ui.theme.PasteleriaMilSaboresTheme
-import java.text.NumberFormat
-import java.util.Locale
-
-private val priceFormatter = NumberFormat.getCurrencyInstance(
-    Locale.Builder().setLanguage("es").setRegion("CL").build()
-)
+import cl.duoc.dsy1105.pasteleriamilsabores.utils.formatPriceChilean
 
 @Composable
 fun ProductCard(
@@ -60,7 +55,7 @@ fun ProductCard(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = priceFormatter.format(product.price),
+                    text = formatPriceChilean(product.price),
                     style = MaterialTheme.typography.bodyLarge,
                 )
                 if (onAddToCart != null) {
