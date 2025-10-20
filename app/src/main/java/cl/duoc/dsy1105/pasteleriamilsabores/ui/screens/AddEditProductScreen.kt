@@ -7,7 +7,6 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,7 +19,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -28,6 +26,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import cl.duoc.dsy1105.pasteleriamilsabores.R
 import cl.duoc.dsy1105.pasteleriamilsabores.model.Product
 import cl.duoc.dsy1105.pasteleriamilsabores.viewmodel.ProductViewModel
 import coil.compose.AsyncImage
@@ -57,24 +56,27 @@ fun AddEditProductScreen(
     val isEditing = existingProduct != null
     val title = if (isEditing) "Editar Producto" else "Agregar Producto"
 
-    // Launcher para seleccionar imagen desde galería
+    // 🔒 Fallback para evitar imageResId = 0
+    val FALLBACK_IMAGE_RES = R.drawable.torta_chocolate
+
+    // Galería (URI para preview)
     val galleryLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         uri?.let {
             selectedImageUri = it
-            selectedImageResId = null // Limpiamos el resource ID porque ahora usamos URI
+            selectedImageResId = null
         }
     }
 
-    // Crear archivo temporal para la foto
+    // Archivo temporal para cámara
     fun createImageFile(): File {
         val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
         val storageDir = context.cacheDir
         return File.createTempFile("JPEG_${timeStamp}_", ".jpg", storageDir)
     }
 
-    // Launcher para tomar foto con cámara
+    // Cámara (URI para preview)
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture()
     ) { success ->
@@ -86,12 +88,11 @@ fun AddEditProductScreen(
         }
     }
 
-    // Launcher para permisos de cámara
+    // Permiso de cámara
     val cameraPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         if (isGranted) {
-            // Crear archivo y lanzar cámara
             val photoFile = createImageFile()
             val uri = FileProvider.getUriForFile(
                 context,
@@ -112,15 +113,15 @@ fun AddEditProductScreen(
                 title = { Text(title) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Volver")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFFFFF8E1)
+                    containerColor = MaterialTheme.colorScheme.surface
                 )
             )
         },
-        containerColor = Color(0xFFFFF8E1)
+        containerColor = MaterialTheme.colorScheme.surface
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -130,10 +131,12 @@ fun AddEditProductScreen(
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Sección de imagen
+            // Imagen
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                ),
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Column(
@@ -144,24 +147,24 @@ fun AddEditProductScreen(
                 ) {
                     Text(
                         text = "Imagen del producto",
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            fontWeight = FontWeight.SemiBold
-                        ),
-                        color = Color(0xFF5D4037)
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
 
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    // Preview de la imagen
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(200.dp)
-                            .border(2.dp, Color(0xFFE0E0E0), RoundedCornerShape(8.dp)),
+                            .border(
+                                width = 1.dp,
+                                color = MaterialTheme.colorScheme.outline,
+                                shape = RoundedCornerShape(8.dp)
+                            ),
                         contentAlignment = Alignment.Center
                     ) {
                         when {
-                            // Si hay URI seleccionada (de galería o cámara)
                             selectedImageUri != null -> {
                                 AsyncImage(
                                     model = selectedImageUri,
@@ -170,36 +173,33 @@ fun AddEditProductScreen(
                                     contentScale = ContentScale.Crop
                                 )
                             }
-                            // Si hay un imageResId (producto existente)
                             selectedImageResId != null -> {
+                                val safeRes = if (selectedImageResId != 0) selectedImageResId!! else FALLBACK_IMAGE_RES
                                 Image(
-                                    painter = painterResource(id = selectedImageResId!!),
+                                    painter = painterResource(id = safeRes),
                                     contentDescription = "Imagen del producto",
                                     modifier = Modifier.fillMaxSize(),
                                     contentScale = ContentScale.Crop
                                 )
                             }
-                            // Placeholder cuando no hay imagen
                             else -> {
-                                Column(
-                                    horizontalAlignment = Alignment.CenterHorizontally
-                                ) {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                     Icon(
                                         imageVector = Icons.Default.Upload,
                                         contentDescription = null,
                                         modifier = Modifier.size(48.dp),
-                                        tint = Color(0xFFBDBDBD)
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                     Spacer(modifier = Modifier.height(8.dp))
                                     Text(
                                         text = "Sube o toma una foto del producto",
                                         style = MaterialTheme.typography.bodyMedium,
-                                        color = Color(0xFF9E9E9E)
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                     Text(
                                         text = "PNG, JPG hasta 5MB",
                                         style = MaterialTheme.typography.bodySmall,
-                                        color = Color(0xFFBDBDBD)
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
                             }
@@ -214,29 +214,17 @@ fun AddEditProductScreen(
                     ) {
                         OutlinedButton(
                             onClick = { galleryLauncher.launch("image/*") },
-                            modifier = Modifier.weight(1f),
-                            colors = ButtonDefaults.outlinedButtonColors(
-                                contentColor = Color(0xFF8B4513)
-                            )
+                            modifier = Modifier.weight(1f)
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.Upload,
-                                contentDescription = null,
-                                modifier = Modifier.size(20.dp)
-                            )
+                            Icon(Icons.Default.Upload, contentDescription = null, modifier = Modifier.size(20.dp))
                             Spacer(modifier = Modifier.width(4.dp))
                             Text("Subir desde galería")
                         }
 
                         OutlinedButton(
                             onClick = {
-                                // Verificar permiso de cámara
                                 when (PackageManager.PERMISSION_GRANTED) {
-                                    ContextCompat.checkSelfPermission(
-                                        context,
-                                        Manifest.permission.CAMERA
-                                    ) -> {
-                                        // Permiso ya otorgado, abrir cámara
+                                    ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) -> {
                                         val photoFile = createImageFile()
                                         val uri = FileProvider.getUriForFile(
                                             context,
@@ -246,22 +234,12 @@ fun AddEditProductScreen(
                                         photoUri = uri
                                         cameraLauncher.launch(uri)
                                     }
-                                    else -> {
-                                        // Solicitar permiso
-                                        cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
-                                    }
+                                    else -> cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
                                 }
                             },
-                            modifier = Modifier.weight(1f),
-                            colors = ButtonDefaults.outlinedButtonColors(
-                                contentColor = Color(0xFF8B4513)
-                            )
+                            modifier = Modifier.weight(1f)
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.CameraAlt,
-                                contentDescription = null,
-                                modifier = Modifier.size(20.dp)
-                            )
+                            Icon(Icons.Default.CameraAlt, contentDescription = null, modifier = Modifier.size(20.dp))
                             Spacer(modifier = Modifier.width(4.dp))
                             Text("Tomar foto")
                         }
@@ -269,7 +247,7 @@ fun AddEditProductScreen(
                 }
             }
 
-            // Nombre del producto
+            // Nombre
             OutlinedTextField(
                 value = name,
                 onValueChange = { name = it },
@@ -277,8 +255,8 @@ fun AddEditProductScreen(
                 placeholder = { Text("Ej: Pastel de Chocolate") },
                 modifier = Modifier.fillMaxWidth(),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedContainerColor = Color.White,
-                    unfocusedContainerColor = Color.White
+                    focusedContainerColor = MaterialTheme.colorScheme.surface,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface
                 ),
                 singleLine = true
             )
@@ -286,13 +264,13 @@ fun AddEditProductScreen(
             // Precio
             OutlinedTextField(
                 value = price,
-                onValueChange = { if (it.all { char -> char.isDigit() }) price = it },
+                onValueChange = { if (it.all { ch -> ch.isDigit() }) price = it },
                 label = { Text("Precio (CLP)") },
                 placeholder = { Text("90000") },
                 modifier = Modifier.fillMaxWidth(),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedContainerColor = Color.White,
-                    unfocusedContainerColor = Color.White
+                    focusedContainerColor = MaterialTheme.colorScheme.surface,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface
                 ),
                 singleLine = true
             )
@@ -307,13 +285,12 @@ fun AddEditProductScreen(
                     .fillMaxWidth()
                     .height(120.dp),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedContainerColor = Color.White,
-                    unfocusedContainerColor = Color.White
+                    focusedContainerColor = MaterialTheme.colorScheme.surface,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface
                 ),
                 maxLines = 4
             )
 
-            // Mensaje de error
             if (showError) {
                 Text(
                     text = errorMessage,
@@ -324,7 +301,6 @@ fun AddEditProductScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Botones
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -338,7 +314,6 @@ fun AddEditProductScreen(
 
                 Button(
                     onClick = {
-                        // Validación
                         when {
                             name.isBlank() -> {
                                 showError = true
@@ -355,9 +330,10 @@ fun AddEditProductScreen(
                             else -> {
                                 showError = false
 
-                                // NOTA: Por ahora guardamos con imageResId = 0 si es URI
-                                // En producción deberías subir la imagen a un servidor
-                                val imageRes = selectedImageResId ?: existingProduct?.imageResId ?: 0
+                                // Guardamos SIEMPRE con un imageResId válido (fallback si no hay)
+                                val imageRes = selectedImageResId
+                                    ?: existingProduct?.imageResId
+                                    ?: FALLBACK_IMAGE_RES
 
                                 val productToSave = Product(
                                     id = existingProduct?.id ?: productViewModel.getNextProductId(),
@@ -377,10 +353,7 @@ fun AddEditProductScreen(
                             }
                         }
                     },
-                    modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF8B4513)
-                    )
+                    modifier = Modifier.weight(1f)
                 ) {
                     Text(if (isEditing) "Guardar Cambios" else "Guardar Producto")
                 }

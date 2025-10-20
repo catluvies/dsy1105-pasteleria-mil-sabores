@@ -1,43 +1,28 @@
 package cl.duoc.dsy1105.pasteleriamilsabores.repository
 
+import cl.duoc.dsy1105.pasteleriamilsabores.data.ProductDao
 import cl.duoc.dsy1105.pasteleriamilsabores.model.Product
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.Flow
 
-class ProductRepository {
+class ProductRepository(
+    private val dao: ProductDao
+) {
+    val products: Flow<List<Product>> = dao.getAll()
 
-    private val _products = MutableStateFlow<List<Product>>(emptyList())
-    val products: StateFlow<List<Product>> = _products.asStateFlow()
+    suspend fun addProduct(product: Product) = dao.upsert(product)
 
-    fun setProducts(productList: List<Product>) {
-        _products.value = productList
-    }
+    suspend fun updateProduct(product: Product) = dao.upsert(product)
 
-    fun addProduct(product: Product) {
-        val currentList = _products.value.toMutableList()
-        currentList.add(product)
-        _products.value = currentList
-    }
+    suspend fun deleteProduct(productId: Int) = dao.delete(productId)
 
-    fun updateProduct(product: Product) {
-        val currentList = _products.value.toMutableList()
-        val index = currentList.indexOfFirst { it.id == product.id }
-        if (index != -1) {
-            currentList[index] = product
-            _products.value = currentList
+    suspend fun getNextProductId(): Int = dao.nextId()
+
+    suspend fun getProductById(id: Int): Product? = dao.getById(id)
+
+    /** Siembra inicial si la tabla está vacía */
+    suspend fun seedIfEmpty(sample: List<Product>) {
+        if (dao.count() == 0) {
+            dao.insertAll(sample)
         }
-    }
-
-    fun deleteProduct(productId: Int) {
-        _products.value = _products.value.filter { it.id != productId }
-    }
-
-    fun getProductById(id: Int): Product? {
-        return _products.value.find { it.id == id }
-    }
-
-    fun getNextProductId(): Int {
-        return (_products.value.maxOfOrNull { it.id } ?: 0) + 1
     }
 }

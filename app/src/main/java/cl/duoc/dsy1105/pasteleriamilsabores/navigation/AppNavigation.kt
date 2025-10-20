@@ -1,6 +1,7 @@
 package cl.duoc.dsy1105.pasteleriamilsabores.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
@@ -27,14 +28,12 @@ sealed class AppScreen(val route: String) {
     data object ProductDetail : AppScreen("product/{id}") {
         fun createRoute(id: Int) = "product/$id"
     }
-    // ============ NUEVAS RUTAS DEL ADMIN ============
     data object AdminPanel : AppScreen("admin_panel")
     data object ProductManagement : AppScreen("product_management")
     data object AddProduct : AppScreen("add_product")
     data object EditProduct : AppScreen("edit_product/{id}") {
         fun createRoute(id: Int) = "edit_product/$id"
     }
-    // ================================================
 }
 
 @Suppress("UNCHECKED_CAST")
@@ -55,38 +54,31 @@ class CartVMFactory(private val dao: cl.duoc.dsy1105.pasteleriamilsabores.data.C
     }
 }
 
-// ============ NUEVA FACTORY PARA PRODUCTVIEWMODEL ============
 class ProductVMFactory(private val productRepository: ProductRepository) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(ProductViewModel::class.java)) return ProductViewModel(productRepository) as T
         error("Unknown ViewModel class: ${modelClass.name}")
     }
 }
-// =============================================================
 
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
 
-    // User session VMs
     val userRepository = remember { UserRepository() }
     val userVmFactory = remember { UserVMFactory(userRepository) }
     val userSessionViewModel: UserSessionViewModel = viewModel(factory = userVmFactory)
 
-    // Cart VM
     val context = LocalContext.current
     val db = remember { AppDatabase.getDatabase(context) }
+
     val cartViewModel: CartViewModel = viewModel(factory = CartVMFactory(db.cartDao()))
 
-    // ============ NUEVO: Product VM ============
-    val productRepository = remember {
-        ProductRepository().apply {
-            setProducts(sampleProductList)
-        }
-    }
+    val productRepository = remember { ProductRepository(db.productDao()) }
     val productVmFactory = remember { ProductVMFactory(productRepository) }
     val productViewModel: ProductViewModel = viewModel(factory = productVmFactory)
-    // ===========================================
+
+    LaunchedEffect(Unit) { productViewModel.seedIfEmpty(sampleProductList) }
 
     NavHost(
         navController = navController,
@@ -101,9 +93,8 @@ fun AppNavigation() {
                 },
                 onCartClick = { navController.navigate(AppScreen.CartScreen.route) },
                 cartViewModel = cartViewModel,
-                onProductClick = { id ->
-                    navController.navigate(AppScreen.ProductDetail.createRoute(id))
-                }
+                onProductClick = { id -> navController.navigate(AppScreen.ProductDetail.createRoute(id)) },
+                productViewModel = productViewModel
             )
         }
 
@@ -115,7 +106,8 @@ fun AppNavigation() {
                 ProductDetailsScreen(
                     product = product,
                     onBack = { navController.popBackStack() },
-                    onCartClick = { navController.navigate(AppScreen.CartScreen.route) }
+                    onCartClick = { navController.navigate(AppScreen.CartScreen.route) },
+                    cartViewModel = cartViewModel
                 )
             } else {
                 navController.popBackStack()
@@ -125,7 +117,8 @@ fun AppNavigation() {
         composable(route = AppScreen.CartScreen.route) {
             CarritoScreen(
                 onBack = { navController.popBackStack() },
-                viewModel = cartViewModel
+                viewModel = cartViewModel,
+                productViewModel = productViewModel   // ✅ PASAMOS productos desde Room
             )
         }
 
@@ -168,17 +161,14 @@ fun AppNavigation() {
                         popUpTo(AppScreen.CatalogScreen.route) { inclusive = true }
                     }
                 },
-                // ============ NUEVO ============
                 onAdminPanelClick = {
                     if (currentUser?.isAdmin == true) {
                         navController.navigate(AppScreen.AdminPanel.route)
                     }
                 }
-                // ===============================
             )
         }
 
-        // ============ NUEVAS RUTAS DEL ADMIN ============
         composable(route = AppScreen.AdminPanel.route) {
             AdminPanelScreen(
                 onNavigateBack = { navController.popBackStack() },
@@ -226,6 +216,5 @@ fun AppNavigation() {
                 navController.popBackStack()
             }
         }
-        // ================================================
     }
 }

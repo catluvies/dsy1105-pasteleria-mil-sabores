@@ -3,7 +3,6 @@ package cl.duoc.dsy1105.pasteleriamilsabores.ui.components
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -13,17 +12,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import cl.duoc.dsy1105.pasteleriamilsabores.data.sampleProductList
+import cl.duoc.dsy1105.pasteleriamilsabores.R
 import cl.duoc.dsy1105.pasteleriamilsabores.model.Product
-import cl.duoc.dsy1105.pasteleriamilsabores.ui.theme.PasteleriaMilSaboresTheme
-import cl.duoc.dsy1105.pasteleriamilsabores.utils.formatPriceChilean
+import java.text.NumberFormat
+import java.util.Locale
+
+private val priceFormatter = NumberFormat.getCurrencyInstance(
+    Locale.Builder().setLanguage("es").setRegion("CL").build()
+)
 
 @Composable
 fun ProductCard(
     product: Product,
-    onAddToCart: ((Product) -> Unit)? = null
+    onAddToCart: (Product) -> Unit = {}
 ) {
     Card(
         shape = RoundedCornerShape(16.dp),
@@ -33,8 +35,12 @@ fun ProductCard(
             modifier = Modifier.padding(12.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            // ✅ Evita crash: si imageResId == 0, usa un placeholder existente
+            val fallback = R.drawable.torta_chocolate
+            val painter = painterResource(id = if (product.imageResId != 0) product.imageResId else fallback)
+
             Image(
-                painter = painterResource(id = product.imageResId),
+                painter = painter,
                 contentDescription = product.name,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -55,24 +61,10 @@ fun ProductCard(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = formatPriceChilean(product.price),
-                    style = MaterialTheme.typography.bodyLarge,
+                    text = priceFormatter.format(product.price),
+                    style = MaterialTheme.typography.bodyLarge
                 )
-                if (onAddToCart != null) {
-                    Button(onClick = { onAddToCart(product) }) {
-                        Text("Agregar")
-                    }
-                }
             }
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun ProductCardPreview() {
-    PasteleriaMilSaboresTheme {
-        val sampleProduct = sampleProductList.first()
-        ProductCard(product = sampleProduct)
     }
 }

@@ -16,13 +16,19 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import cl.duoc.dsy1105.pasteleriamilsabores.R
 import cl.duoc.dsy1105.pasteleriamilsabores.model.Product
 import cl.duoc.dsy1105.pasteleriamilsabores.viewmodel.ProductViewModel
+import java.text.NumberFormat
+import java.util.Locale
+
+private val priceFormatter = NumberFormat.getCurrencyInstance(
+    Locale.Builder().setLanguage("es").setRegion("CL").build()
+)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -40,27 +46,24 @@ fun ProductManagementScreen(
                 title = { Text("Gestión de Productos") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Volver")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFFFFF8E1)
+                    containerColor = MaterialTheme.colorScheme.surface
                 )
             )
         },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onAddProduct,
-                containerColor = Color(0xFF8B4513)
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
             ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "Agregar Producto",
-                    tint = Color.White
-                )
+                Icon(imageVector = Icons.Default.Add, contentDescription = "Agregar Producto")
             }
         },
-        containerColor = Color(0xFFFFF8E1)
+        containerColor = MaterialTheme.colorScheme.surface
     ) { innerPadding ->
         if (products.isEmpty()) {
             Box(
@@ -72,7 +75,7 @@ fun ProductManagementScreen(
                 Text(
                     text = "No hay productos",
                     style = MaterialTheme.typography.titleMedium,
-                    color = Color(0xFF8D6E63)
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         } else {
@@ -83,7 +86,7 @@ fun ProductManagementScreen(
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                items(products) { product ->
+                items(products, key = { it.id }) { product ->
                     ProductManagementCard(
                         product = product,
                         onEdit = { onEditProduct(product) },
@@ -96,16 +99,20 @@ fun ProductManagementScreen(
 }
 
 @Composable
-fun ProductManagementCard(
+private fun ProductManagementCard(
     product: Product,
     onEdit: () -> Unit,
     onDelete: () -> Unit
 ) {
+    val colors = MaterialTheme.colorScheme
+    val fallbackRes = R.drawable.torta_chocolate
+    val safeResId = if (product.imageResId != 0) product.imageResId else fallbackRes
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color.White
+            containerColor = colors.surfaceVariant
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
@@ -115,71 +122,77 @@ fun ProductManagementCard(
                 .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Imagen del producto
-            Image(
-                painter = painterResource(id = product.imageResId),
-                contentDescription = product.name,
-                modifier = Modifier
-                    .size(80.dp)
-                    .padding(end = 12.dp)
-            )
+            // Imagen segura (evita crash si imageResId == 0)
+            Card(
+                modifier = Modifier.size(84.dp),
+                shape = RoundedCornerShape(10.dp),
+                colors = CardDefaults.cardColors(containerColor = colors.surface)
+            ) {
+                Image(
+                    painter = painterResource(id = safeResId),
+                    contentDescription = product.name,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+            }
 
-            // Información del producto
+            Spacer(modifier = Modifier.width(12.dp))
+
+            // Info
             Column(
                 modifier = Modifier.weight(1f)
             ) {
                 Text(
                     text = product.name,
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Bold
-                    ),
-                    color = Color(0xFF5D4037)
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                    color = colors.onSurface
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "$${product.price} CLP",
+                    text = priceFormatter.format(product.price),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = Color(0xFF8B4513)
+                    color = colors.onSurfaceVariant
                 )
                 if (product.description.isNotBlank()) {
+                    Spacer(modifier = Modifier.height(2.dp))
                     Text(
-                        text = product.description.take(50) + if (product.description.length > 50) "..." else "",
+                        text = product.description.take(80) + if (product.description.length > 80) "..." else "",
                         style = MaterialTheme.typography.bodySmall,
-                        color = Color(0xFF8D6E63),
+                        color = colors.onSurfaceVariant,
                         maxLines = 2
                     )
                 }
             }
 
-            // Botones de acción
+            // Acciones
             Column(
                 horizontalAlignment = Alignment.End,
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                IconButton(
-                    onClick = onEdit,
-                    colors = IconButtonDefaults.iconButtonColors(
-                        containerColor = Color(0xFFFFCDD2)
-                    )
+                Surface(
+                    color = colors.secondaryContainer,
+                    shape = RoundedCornerShape(8.dp)
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Edit,
-                        contentDescription = "Editar",
-                        tint = Color(0xFFC62828)
-                    )
+                    IconButton(onClick = onEdit) {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = "Editar",
+                            tint = colors.onSecondaryContainer
+                        )
+                    }
                 }
 
-                IconButton(
-                    onClick = onDelete,
-                    colors = IconButtonDefaults.iconButtonColors(
-                        containerColor = Color(0xFFFFCDD2)
-                    )
+                Surface(
+                    color = colors.errorContainer,
+                    shape = RoundedCornerShape(8.dp)
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Delete,
-                        contentDescription = "Eliminar",
-                        tint = Color(0xFFC62828)
-                    )
+                    IconButton(onClick = onDelete) {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = "Eliminar",
+                            tint = colors.onErrorContainer
+                        )
+                    }
                 }
             }
         }

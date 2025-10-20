@@ -99,6 +99,7 @@ fun UserProfileScreen(
                         Text("Panel de Administración", style = MaterialTheme.typography.titleMedium)
                     }
                 }
+
                 // ==============================================================
 
                 Button(
