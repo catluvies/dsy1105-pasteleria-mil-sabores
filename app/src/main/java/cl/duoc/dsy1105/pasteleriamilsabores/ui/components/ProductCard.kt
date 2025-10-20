@@ -3,6 +3,7 @@ package cl.duoc.dsy1105.pasteleriamilsabores.ui.components
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -26,7 +27,8 @@ private val priceFormatter = NumberFormat.getCurrencyInstance(
 
 @Composable
 fun ProductCard(
-    product: Product
+    product: Product,
+    onAddToCart: ((Product) -> Unit)? = null
 ) {
     Card(
         shape = RoundedCornerShape(16.dp),
@@ -61,11 +63,15 @@ fun ProductCard(
                     text = priceFormatter.format(product.price),
                     style = MaterialTheme.typography.bodyLarge,
                 )
+                if (onAddToCart != null) {
+                    Button(onClick = { onAddToCart(product) }) {
+                        Text("Agregar")
+                    }
+                }
             }
         }
     }
 }
-
 
 @Preview(showBackground = true)
 @Composable

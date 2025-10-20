@@ -11,26 +11,25 @@ import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import cl.duoc.dsy1105.pasteleriamilsabores.data.sampleProductList
 import cl.duoc.dsy1105.pasteleriamilsabores.ui.components.ProductCard
-import cl.duoc.dsy1105.pasteleriamilsabores.ui.theme.PasteleriaMilSaboresTheme
-
+import cl.duoc.dsy1105.pasteleriamilsabores.viewmodel.CartViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CatalogScreen() {
+fun CatalogScreen(
+    onProfileClick: () -> Unit,
+    onCartClick: () -> Unit,
+    cartViewModel: CartViewModel
+) {
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("Nuestros Productos", style = MaterialTheme.typography.headlineLarge) },
                 actions = {
-                    Surface(
-                        shape = CircleShape,
-                        color = MaterialTheme.colorScheme.primary
-                    ) {
-                        IconButton(onClick = {}) { // onClick vacío
+                    Surface(shape = CircleShape, color = MaterialTheme.colorScheme.primary) {
+                        IconButton(onClick = onProfileClick) {
                             Icon(
                                 Icons.Default.Person,
                                 contentDescription = "Perfil",
@@ -38,14 +37,9 @@ fun CatalogScreen() {
                             )
                         }
                     }
-
                     Spacer(modifier = Modifier.width(8.dp))
-
-                    Surface(
-                        shape = CircleShape,
-                        color = MaterialTheme.colorScheme.primary
-                    ) {
-                        IconButton(onClick = {}) { // onClick vacío
+                    Surface(shape = CircleShape, color = MaterialTheme.colorScheme.primary) {
+                        IconButton(onClick = onCartClick) {
                             Icon(
                                 Icons.Default.ShoppingCart,
                                 contentDescription = "Carrito",
@@ -67,17 +61,11 @@ fun CatalogScreen() {
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(sampleProductList) { product ->
-                // Llamada súper simple. La tarjeta solo muestra la información.
-                ProductCard(product = product)
+                ProductCard(
+                    product = product,
+                    onAddToCart = { p -> cartViewModel.addProduct(p.id, 1) }
+                )
             }
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun CatalogScreenPreview() {
-    PasteleriaMilSaboresTheme {
-        CatalogScreen()
     }
 }

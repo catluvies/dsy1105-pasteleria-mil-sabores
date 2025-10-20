@@ -6,7 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import cl.duoc.dsy1105.pasteleriamilsabores.model.CartItem
 
-@Database(entities = [CartItem::class], version = 1)
+@Database(entities = [CartItem::class], version = 1, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun cartDao(): CartDao
 
