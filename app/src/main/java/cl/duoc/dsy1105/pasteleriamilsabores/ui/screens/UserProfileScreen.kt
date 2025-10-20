@@ -8,6 +8,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -18,7 +19,8 @@ import cl.duoc.dsy1105.pasteleriamilsabores.viewmodel.UserSessionViewModel
 fun UserProfileScreen(
     userSessionViewModel: UserSessionViewModel,
     onNavigateBack: () -> Unit,
-    onLogout: () -> Unit
+    onLogout: () -> Unit,
+    onAdminPanelClick: () -> Unit  // ← NUEVO PARÁMETRO
 ) {
     val user by userSessionViewModel.currentUserState.collectAsStateWithLifecycle()
     val currentUser = user
@@ -70,9 +72,7 @@ fun UserProfileScreen(
                     value = address,
                     onValueChange = { address = it },
                     label = { Text("Tu Dirección de Envío") },
-                    // ================== CORREGIDO ==================
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                    // ===============================================
                     modifier = Modifier.fillMaxWidth(),
                     readOnly = !isEditing
                 )
@@ -80,14 +80,26 @@ fun UserProfileScreen(
                     value = phone,
                     onValueChange = { phone = it },
                     label = { Text("Tu Número de Teléfono") },
-                    // ================== CORREGIDO ==================
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-                    // ===============================================
                     modifier = Modifier.fillMaxWidth(),
                     readOnly = !isEditing
                 )
 
                 Spacer(modifier = Modifier.weight(1f))
+
+                // ============ NUEVO: Botón Panel de Administración ============
+                if (currentUser.isAdmin) {
+                    Button(
+                        onClick = onAdminPanelClick,
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF8B4513)
+                        )
+                    ) {
+                        Text("Panel de Administración", style = MaterialTheme.typography.titleMedium)
+                    }
+                }
+                // ==============================================================
 
                 Button(
                     onClick = {
