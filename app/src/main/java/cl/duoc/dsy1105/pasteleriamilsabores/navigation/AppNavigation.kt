@@ -7,6 +7,7 @@ import androidx.navigation.compose.rememberNavController
 import cl.duoc.dsy1105.pasteleriamilsabores.ui.screens.LoginScreen
 import cl.duoc.dsy1105.pasteleriamilsabores.ui.screens.RegisterScreen
 
+
 sealed class AppScreen(val route: String) {
     object LoginScreen : AppScreen("login")
     object RegisterScreen : AppScreen("register")
