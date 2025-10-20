@@ -2,6 +2,7 @@ package cl.duoc.dsy1105.pasteleriamilsabores.repository
 
 import cl.duoc.dsy1105.pasteleriamilsabores.model.User
 import cl.duoc.dsy1105.pasteleriamilsabores.model.UserCredentials
+import cl.duoc.dsy1105.pasteleriamilsabores.utils.HashingUtils
 
 /**
  * Gestiona los datos de los usuarios y sus credenciales.
@@ -15,6 +16,28 @@ class UserRepository {
     // no son globales para toda la app.
     private val users = mutableListOf<User>()
     private val credentials = mutableListOf<UserCredentials>()
+
+    init {
+        val adminUser = User(
+            id = 999,
+            fullName = "Administrador",
+            email = "admin@pasteleria.cl",
+            address = "",
+            phone = "",
+            isAdmin = true
+
+        )
+        val adminCredentials = UserCredentials(
+            email = "admin@pasteleria.cl",
+            passwordHash = HashingUtils.hashPassword("admin123")
+        )
+
+        users.add(adminUser)
+        credentials.add(adminCredentials)
+
+    }
+
+
 
     fun findUserByEmail(email: String): User? {
         return users.find { it.email.equals(email, ignoreCase = true) }

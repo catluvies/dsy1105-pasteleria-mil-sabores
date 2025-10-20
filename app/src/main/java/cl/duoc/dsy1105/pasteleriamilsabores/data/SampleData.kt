@@ -14,5 +14,6 @@ val sampleProductList = listOf(
     Product(9, "Mousse de Chocolate", "Descripción...", 5000, R.drawable.mousse_chocolate),
     Product(10, "Tiramisú Clásico", "Descripción...", 5500, R.drawable.tiramissu),
     Product(11, "Cheesecake", "Descripción...", 47000, R.drawable.cheesecake_0_azucar),
-    Product(12, "Brownie", "Descripción...", 4000, R.drawable.brownie_sin_gluten))
+    Product(12, "Brownie", "Descripción...", 4000, R.drawable.brownie_sin_gluten)
+)
 
