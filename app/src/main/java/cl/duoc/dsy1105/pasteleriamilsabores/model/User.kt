@@ -5,5 +5,6 @@ data class User(
     val fullName: String,
     val email: String,
     var address: String,
-    var phone: String
+    var phone: String,
+    val isAdmin: Boolean = false
 )

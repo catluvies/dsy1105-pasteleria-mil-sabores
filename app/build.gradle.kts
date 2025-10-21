@@ -72,4 +72,7 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     testImplementation(kotlin("test"))
+
+    // Coil para cargar imágenes desde URI
+    implementation("io.coil-kt:coil-compose:2.5.0")
 }
