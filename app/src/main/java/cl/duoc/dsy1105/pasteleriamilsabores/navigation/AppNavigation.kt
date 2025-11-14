@@ -26,6 +26,8 @@ sealed class AppScreen(val route: String) {
     data object RegisterScreen : AppScreen("register")
     data object UserProfileScreen : AppScreen("user_profile")
     data object CartScreen : AppScreen("cart")
+    data object CheckoutScreen : AppScreen("checkout")
+    data object PaymentSuccessScreen : AppScreen("payment_success")
     data object ProductDetail : AppScreen("product/{id}") {
         fun createRoute(id: Int) = "product/$id"
     }
@@ -78,7 +80,6 @@ fun AppNavigation(
 
     val cartViewModel: CartViewModel = viewModel(factory = CartVMFactory(db.cartDao()))
 
-    // CAMBIO: Ahora ProductRepository recibe también CartDao
     val productRepository = remember { ProductRepository(db.productDao(), db.cartDao()) }
     val productVmFactory = remember { ProductVMFactory(productRepository) }
     val productViewModel: ProductViewModel = viewModel(factory = productVmFactory)
@@ -134,8 +135,34 @@ fun AppNavigation(
         composable(route = AppScreen.CartScreen.route) {
             CarritoScreen(
                 onBack = { navController.popBackStack() },
+                onCheckout = { navController.navigate(AppScreen.CheckoutScreen.route) },
                 viewModel = cartViewModel,
                 productViewModel = productViewModel
+            )
+        }
+
+        composable(route = AppScreen.CheckoutScreen.route) {
+            CheckoutScreen(
+                onBack = { navController.popBackStack() },
+                onPaymentSuccess = {
+                    navController.navigate(AppScreen.PaymentSuccessScreen.route) {
+                        popUpTo(AppScreen.CartScreen.route) { inclusive = true }
+                    }
+                },
+                cartViewModel = cartViewModel,
+                productViewModel = productViewModel,
+                userSessionViewModel = userSessionViewModel
+            )
+        }
+
+        composable(route = AppScreen.PaymentSuccessScreen.route) {
+            PaymentSuccessScreen(
+                onBackToCatalog = {
+                    navController.navigate(AppScreen.CatalogScreen.route) {
+                        popUpTo(AppScreen.CatalogScreen.route) { inclusive = true }
+                    }
+                },
+                cartViewModel = cartViewModel
             )
         }
 

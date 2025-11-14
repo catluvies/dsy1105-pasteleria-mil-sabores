@@ -17,7 +17,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -36,6 +35,7 @@ private data class CartUiItem(val product: Product, val quantity: Int)
 @Composable
 fun CarritoScreen(
     onBack: () -> Unit,
+    onCheckout: () -> Unit,
     viewModel: CartViewModel,
     productViewModel: ProductViewModel
 ) {
@@ -162,7 +162,7 @@ fun CarritoScreen(
                                 )
                             }
                             Button(
-                                onClick = { /* TODO: flujo de pago */ },
+                                onClick = onCheckout,
                                 modifier = Modifier.height(56.dp)
                             ) {
                                 Text("Pagar", style = MaterialTheme.typography.titleMedium)
