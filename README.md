@@ -40,9 +40,10 @@ Presiona el botón de 'Run' (el ícono de triángulo verde) en la barra superior
 ![Botón Run de Android Studio](docs/images/RUNANDROIDSTUDIO.png)
 
 ---
+
 ## Hitos Logrados - 2da Evaluación:
 
-* **Sistema de Autenticación Completo**: Implementación de registro y login con validación de datos, gestión de sesión de usuario mediante ViewModels y persistencia con Room Database.
+* **Sistema de Autenticación Completo**: Implementación de registro y login con validación de datos, gestión de sesión de usuario mediante ViewModels.
 
 * **Catálogo de Productos Funcional**: Visualización de productos con navegación a detalle, integración con base de datos local Room, y carga de datos desde archivos de recursos.
 
@@ -56,15 +57,25 @@ Presiona el botón de 'Run' (el ícono de triángulo verde) en la barra superior
 
 * **Base de Datos Room**: Persistencia local con Room Database para usuarios, productos y carrito de compras.
 
-* **Interfaz de Usuario Mejorada**:
-    - Splash Screen animado al iniciar la aplicación
-    - Modo oscuro implementado y funcional
-    - Rediseño completo de la UI siguiendo Material Design 3
-    - Íconos personalizados de la aplicación
-
 * **Sistema de Navegación**: Navigation Compose implementado para flujo completo entre todas las pantallas de la aplicación.
 
 * **Perfil de Usuario**: Pantalla de perfil con información del usuario y opciones de configuración.
+
+---
+
+## Funcionalidades en Desarrollo - 3ra Evaluación:
+
+* **Splash Screen**: Pantalla de bienvenida animada al iniciar la aplicación.
+
+* **Modo Oscuro**: Implementación completa de dark mode con toggle en la interfaz.
+
+* **Flujo de Pago Completo**: Pantallas de checkout con formulario de datos de envío y confirmación de pago simulada.
+
+* **Rediseño de Interfaz**: Mejoras visuales en carrito, catálogo y componentes siguiendo Material Design 3.
+
+* **Optimizaciones de Rendimiento**: Refactorización de código para mejor uso de memoria y rendimiento.
+
+* **Integración con Backend**: Preparación para conectar con API REST usando Spring Boot (en desarrollo).
 
 ---
 
