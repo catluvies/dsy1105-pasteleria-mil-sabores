@@ -40,21 +40,31 @@ Presiona el botón de 'Run' (el ícono de triángulo verde) en la barra superior
 ![Botón Run de Android Studio](docs/images/RUNANDROIDSTUDIO.png)
 
 ---
+## Hitos Logrados - 2da Evaluación:
 
-## Funcionalidades a Desarrollar:
+* **Sistema de Autenticación Completo**: Implementación de registro y login con validación de datos, gestión de sesión de usuario mediante ViewModels y persistencia con Room Database.
 
+* **Catálogo de Productos Funcional**: Visualización de productos con navegación a detalle, integración con base de datos local Room, y carga de datos desde archivos de recursos.
 
-* Registro y Login: Para implementar formularios con validación de datos.
-* Catálogo de Productos: La pantalla principal para mostrar la interfaz y la navegación.
-* Carrito de Compras: Para manejar el guardado de datos en el dispositivo. 
-* Crear una vista para el administrador.
-* Administrar productos del catalogo mediante perfil de admin.
-* Recursos nativos: Galería y Cámara para subir productos como administrador.
+* **Carrito de Compras Operativo**: Sistema completo de carrito con persistencia local, agregar/eliminar productos, y cálculo de totales en tiempo real.
 
----
+* **Panel de Administración**: Vista exclusiva para administradores con gestión completa de productos (crear, editar, eliminar) del catálogo.
 
-## Hitos
-* Se logró hacer el commit inicial
+* **Integración de Recursos Nativos**: Implementación de acceso a cámara y galería para que el administrador pueda agregar imágenes de productos desde el dispositivo.
+
+* **Arquitectura MVVM Completa**: Separación de capas con ViewModels, Repositories, y DAOs. Implementación de StateFlow para manejo reactivo del estado.
+
+* **Base de Datos Room**: Persistencia local con Room Database para usuarios, productos y carrito de compras.
+
+* **Interfaz de Usuario Mejorada**:
+    - Splash Screen animado al iniciar la aplicación
+    - Modo oscuro implementado y funcional
+    - Rediseño completo de la UI siguiendo Material Design 3
+    - Íconos personalizados de la aplicación
+
+* **Sistema de Navegación**: Navigation Compose implementado para flujo completo entre todas las pantallas de la aplicación.
+
+* **Perfil de Usuario**: Pantalla de perfil con información del usuario y opciones de configuración.
 
 ---
 
