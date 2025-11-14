@@ -152,7 +152,8 @@ fun CatalogScreen(
             state = gridState,
             modifier = Modifier
                 .padding(innerPadding)
-                .padding(8.dp),
+                .padding(horizontal = 8.dp),
+            contentPadding = PaddingValues(top = 8.dp, bottom = 88.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {

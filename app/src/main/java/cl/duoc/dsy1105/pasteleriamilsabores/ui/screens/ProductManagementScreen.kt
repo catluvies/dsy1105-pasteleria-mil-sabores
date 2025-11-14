@@ -25,12 +25,7 @@ import androidx.compose.ui.unit.dp
 import cl.duoc.dsy1105.pasteleriamilsabores.R
 import cl.duoc.dsy1105.pasteleriamilsabores.model.Product
 import cl.duoc.dsy1105.pasteleriamilsabores.viewmodel.ProductViewModel
-import java.text.NumberFormat
-import java.util.Locale
-
-private val priceFormatter = NumberFormat.getCurrencyInstance(
-    Locale.Builder().setLanguage("es").setRegion("CL").build()
-)
+import cl.duoc.dsy1105.pasteleriamilsabores.utils.Formatters
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -95,7 +90,8 @@ fun ProductManagementScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
-                    .padding(16.dp),
+                    .padding(horizontal = 16.dp),
+                contentPadding = PaddingValues(top = 16.dp, bottom = 88.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(products, key = { it.id }) { product ->
@@ -158,7 +154,7 @@ private fun ProductManagementCard(
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    text = priceFormatter.format(product.price),
+                    text = Formatters.clPriceFormatter.format(product.price),
                     style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
                     color = colors.primary
                 )

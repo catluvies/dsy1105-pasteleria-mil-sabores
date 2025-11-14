@@ -1,6 +1,8 @@
 package cl.duoc.dsy1105.pasteleriamilsabores.ui.screens
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -26,12 +28,7 @@ import cl.duoc.dsy1105.pasteleriamilsabores.R
 import cl.duoc.dsy1105.pasteleriamilsabores.model.Product
 import cl.duoc.dsy1105.pasteleriamilsabores.viewmodel.CartViewModel
 import cl.duoc.dsy1105.pasteleriamilsabores.viewmodel.ProductViewModel
-import java.text.NumberFormat
-import java.util.Locale
-
-private val clFormatter = NumberFormat.getCurrencyInstance(
-    Locale.Builder().setLanguage("es").setRegion("CL").build()
-)
+import cl.duoc.dsy1105.pasteleriamilsabores.utils.Formatters
 
 private data class CartUiItem(val product: Product, val quantity: Int)
 
@@ -120,7 +117,7 @@ fun CarritoScreen(
                         .weight(1f)
                         .padding(horizontal = 16.dp)
                         .padding(top = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     items(uiItems, key = { it.product.id }) { item ->
                         CartItemCard(
@@ -159,7 +156,7 @@ fun CarritoScreen(
                                     color = colors.onSurfaceVariant
                                 )
                                 Text(
-                                    clFormatter.format(total),
+                                    Formatters.clPriceFormatter.format(total),
                                     style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
                                     color = colors.primary
                                 )
@@ -190,33 +187,47 @@ private fun CartItemCard(
     val safeResId = if (item.product.imageResId != 0) item.product.imageResId else fallbackRes
 
     Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .border(
+                width = 1.dp,
+                color = colors.outlineVariant.copy(alpha = 0.5f),
+                shape = RoundedCornerShape(16.dp)
+            ),
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = colors.surface
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(12.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             // IMAGEN
-            Image(
-                painter = painterResource(id = safeResId),
-                contentDescription = item.product.name,
-                modifier = Modifier
-                    .size(90.dp)
-                    .clip(RoundedCornerShape(8.dp)),
-                contentScale = ContentScale.Crop
-            )
+            Card(
+                modifier = Modifier.size(100.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = colors.surfaceVariant
+                )
+            ) {
+                Image(
+                    painter = painterResource(id = safeResId),
+                    contentDescription = item.product.name,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+            }
 
             // CONTENIDO
             Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight(),
+                verticalArrangement = Arrangement.SpaceBetween
             ) {
                 // NOMBRE Y ELIMINAR
                 Row(
@@ -224,68 +235,102 @@ private fun CartItemCard(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.Top
                 ) {
-                    Text(
-                        text = item.product.name,
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
-                        color = colors.onSurface,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.weight(1f)
-                    )
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Text(
+                            text = item.product.name,
+                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                            color = colors.onSurface,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        Text(
+                            text = "${Formatters.clPriceFormatter.format(item.product.price)} c/u",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = colors.onSurfaceVariant
+                        )
+                    }
 
                     IconButton(
                         onClick = onRemove,
-                        modifier = Modifier.size(32.dp)
+                        modifier = Modifier.size(40.dp),
+                        colors = IconButtonDefaults.iconButtonColors(
+                            contentColor = colors.error
+                        )
                     ) {
                         Icon(
                             Icons.Default.Delete,
                             contentDescription = "Eliminar",
-                            modifier = Modifier.size(20.dp),
-                            tint = colors.error
+                            modifier = Modifier.size(22.dp)
                         )
                     }
                 }
 
-                // PRECIO
-                Text(
-                    text = clFormatter.format(item.product.price * item.quantity),
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                    color = colors.primary
-                )
+                Spacer(Modifier.height(8.dp))
 
-                // CONTROLES DE CANTIDAD
+                // PRECIO TOTAL Y CONTROLES
                 Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Start,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    FilledTonalIconButton(
-                        onClick = onDecrease,
-                        modifier = Modifier.size(36.dp)
-                    ) {
-                        Icon(
-                            Icons.Default.Remove,
-                            contentDescription = "Reducir",
-                            modifier = Modifier.size(18.dp)
-                        )
-                    }
-
+                    // PRECIO TOTAL
                     Text(
-                        text = item.quantity.toString(),
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                        color = colors.onSurface,
-                        modifier = Modifier.padding(horizontal = 16.dp)
+                        text = Formatters.clPriceFormatter.format(item.product.price * item.quantity),
+                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                        color = colors.primary
                     )
 
-                    FilledTonalIconButton(
-                        onClick = onIncrease,
-                        modifier = Modifier.size(36.dp)
+                    // CONTROLES DE CANTIDAD
+                    Surface(
+                        shape = RoundedCornerShape(20.dp),
+                        color = colors.primaryContainer.copy(alpha = 0.3f),
+                        border = BorderStroke(1.dp, colors.primary.copy(alpha = 0.2f))
                     ) {
-                        Icon(
-                            Icons.Default.Add,
-                            contentDescription = "Aumentar",
-                            modifier = Modifier.size(18.dp)
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            modifier = Modifier.padding(horizontal = 4.dp, vertical = 4.dp)
+                        ) {
+                            FilledIconButton(
+                                onClick = onDecrease,
+                                modifier = Modifier.size(32.dp),
+                                colors = IconButtonDefaults.filledIconButtonColors(
+                                    containerColor = colors.primary,
+                                    contentColor = colors.onPrimary
+                                )
+                            ) {
+                                Icon(
+                                    Icons.Default.Remove,
+                                    contentDescription = "Reducir",
+                                    modifier = Modifier.size(16.dp)
+                                )
+                            }
+
+                            Text(
+                                text = item.quantity.toString(),
+                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                color = colors.onSurface,
+                                modifier = Modifier.padding(horizontal = 12.dp)
+                            )
+
+                            FilledIconButton(
+                                onClick = onIncrease,
+                                modifier = Modifier.size(32.dp),
+                                colors = IconButtonDefaults.filledIconButtonColors(
+                                    containerColor = colors.primary,
+                                    contentColor = colors.onPrimary
+                                )
+                            ) {
+                                Icon(
+                                    Icons.Default.Add,
+                                    contentDescription = "Aumentar",
+                                    modifier = Modifier.size(16.dp)
+                                )
+                            }
+                        }
                     }
                 }
             }

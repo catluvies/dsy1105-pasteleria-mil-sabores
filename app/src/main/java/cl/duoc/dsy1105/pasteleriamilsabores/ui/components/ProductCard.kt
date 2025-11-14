@@ -17,12 +17,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import cl.duoc.dsy1105.pasteleriamilsabores.R
 import cl.duoc.dsy1105.pasteleriamilsabores.model.Product
-import java.text.NumberFormat
-import java.util.Locale
-
-private val priceFormatter = NumberFormat.getCurrencyInstance(
-    Locale.Builder().setLanguage("es").setRegion("CL").build()
-)
+import cl.duoc.dsy1105.pasteleriamilsabores.utils.Formatters
 
 @Composable
 fun ProductCard(
@@ -70,7 +65,7 @@ fun ProductCard(
                 )
 
                 Text(
-                    text = priceFormatter.format(product.price),
+                    text = Formatters.clPriceFormatter.format(product.price),
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                     color = MaterialTheme.colorScheme.primary
                 )

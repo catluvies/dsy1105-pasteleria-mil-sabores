@@ -22,12 +22,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cl.duoc.dsy1105.pasteleriamilsabores.R
 import cl.duoc.dsy1105.pasteleriamilsabores.model.Product
 import cl.duoc.dsy1105.pasteleriamilsabores.viewmodel.CartViewModel
-import java.text.NumberFormat
-import java.util.Locale
-
-private val priceFormatter = NumberFormat.getCurrencyInstance(
-    Locale.Builder().setLanguage("es").setRegion("CL").build()
-)
+import cl.duoc.dsy1105.pasteleriamilsabores.utils.Formatters
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -122,7 +117,7 @@ fun ProductDetailsScreen(
             )
 
             Text(
-                text = priceFormatter.format(product.price),
+                text = Formatters.clPriceFormatter.format(product.price),
                 style = MaterialTheme.typography.titleMedium,
                 color = colors.onSurfaceVariant
             )
