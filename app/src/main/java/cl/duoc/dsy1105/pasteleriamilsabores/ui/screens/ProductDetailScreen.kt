@@ -2,6 +2,7 @@ package cl.duoc.dsy1105.pasteleriamilsabores.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -12,10 +13,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cl.duoc.dsy1105.pasteleriamilsabores.R
 import cl.duoc.dsy1105.pasteleriamilsabores.model.Product
 import cl.duoc.dsy1105.pasteleriamilsabores.viewmodel.CartViewModel
@@ -38,6 +41,9 @@ fun ProductDetailsScreen(
     val fallbackRes = R.drawable.torta_chocolate
     val safeResId = if (product.imageResId != 0) product.imageResId else fallbackRes
 
+    val cartItems = cartViewModel.cartItems.collectAsStateWithLifecycle().value
+    val cartCount = cartItems.sumOf { it.quantity }
+
     var qty by remember { mutableStateOf(1) }
 
     Scaffold(
@@ -50,9 +56,33 @@ fun ProductDetailsScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = onCartClick) {
-                        Icon(Icons.Filled.ShoppingCart, contentDescription = "Carrito")
+                    Box {
+                        Surface(shape = CircleShape, color = colors.primary) {
+                            IconButton(onClick = onCartClick) {
+                                Icon(
+                                    Icons.Filled.ShoppingCart,
+                                    contentDescription = "Carrito",
+                                    tint = colors.onPrimary
+                                )
+                            }
+                        }
+                        if (cartCount > 0) {
+                            Badge(
+                                containerColor = Color(0xFFFF3B30),
+                                contentColor = Color.White,
+                                modifier = Modifier
+                                    .align(Alignment.TopEnd)
+                                    .offset(x = (-4).dp, y = 4.dp)
+                            ) {
+                                Text(
+                                    text = if (cartCount > 99) "99+" else cartCount.toString(),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
                     }
+                    Spacer(Modifier.width(8.dp))
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = colors.surface
@@ -68,7 +98,6 @@ fun ProductDetailsScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Imagen con fallback
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -104,7 +133,6 @@ fun ProductDetailsScreen(
                 color = colors.onSurfaceVariant
             )
 
-            // Selector de cantidad
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -137,7 +165,6 @@ fun ProductDetailsScreen(
                 }
             }
 
-            // Botón agregar al carrito
             Button(
                 onClick = {
                     cartViewModel.addProduct(product.id, qty)

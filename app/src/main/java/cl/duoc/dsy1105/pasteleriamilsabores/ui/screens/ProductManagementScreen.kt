@@ -16,9 +16,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import cl.duoc.dsy1105.pasteleriamilsabores.R
 import cl.duoc.dsy1105.pasteleriamilsabores.model.Product
@@ -48,10 +50,7 @@ fun ProductManagementScreen(
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver")
                     }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                )
+                }
             )
         },
         floatingActionButton = {
@@ -62,8 +61,7 @@ fun ProductManagementScreen(
             ) {
                 Icon(imageVector = Icons.Default.Add, contentDescription = "Agregar Producto")
             }
-        },
-        containerColor = MaterialTheme.colorScheme.surface
+        }
     ) { innerPadding ->
         if (products.isEmpty()) {
             Box(
@@ -72,11 +70,25 @@ fun ProductManagementScreen(
                     .padding(innerPadding),
                 contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = "No hay productos",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = "📦",
+                        style = MaterialTheme.typography.displayMedium
+                    )
+                    Text(
+                        text = "No hay productos",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        text = "Agrega productos con el botón +",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
         } else {
             LazyColumn(
@@ -112,87 +124,74 @@ private fun ProductManagementCard(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
-            containerColor = colors.surfaceVariant
+            containerColor = colors.surface
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(12.dp),
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Imagen segura (evita crash si imageResId == 0)
-            Card(
-                modifier = Modifier.size(84.dp),
-                shape = RoundedCornerShape(10.dp),
-                colors = CardDefaults.cardColors(containerColor = colors.surface)
-            ) {
-                Image(
-                    painter = painterResource(id = safeResId),
-                    contentDescription = product.name,
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
-                )
-            }
+            // IMAGEN
+            Image(
+                painter = painterResource(id = safeResId),
+                contentDescription = product.name,
+                modifier = Modifier
+                    .size(80.dp)
+                    .clip(RoundedCornerShape(8.dp)),
+                contentScale = ContentScale.Crop
+            )
 
-            Spacer(modifier = Modifier.width(12.dp))
-
-            // Info
+            // INFO
             Column(
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Text(
                     text = product.name,
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
-                    color = colors.onSurface
+                    color = colors.onSurface,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
                 )
-                Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = priceFormatter.format(product.price),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = colors.onSurfaceVariant
+                    style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                    color = colors.primary
                 )
-                if (product.description.isNotBlank()) {
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Text(
-                        text = product.description.take(80) + if (product.description.length > 80) "..." else "",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = colors.onSurfaceVariant,
-                        maxLines = 2
-                    )
-                }
             }
 
-            // Acciones
-            Column(
-                horizontalAlignment = Alignment.End,
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+            // BOTONES DE ACCIÓN
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Surface(
-                    color = colors.secondaryContainer,
-                    shape = RoundedCornerShape(8.dp)
+                FilledTonalIconButton(
+                    onClick = onEdit,
+                    colors = IconButtonDefaults.filledTonalIconButtonColors(
+                        containerColor = colors.primaryContainer,
+                        contentColor = colors.onPrimaryContainer
+                    )
                 ) {
-                    IconButton(onClick = onEdit) {
-                        Icon(
-                            imageVector = Icons.Default.Edit,
-                            contentDescription = "Editar",
-                            tint = colors.onSecondaryContainer
-                        )
-                    }
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = "Editar"
+                    )
                 }
 
-                Surface(
-                    color = colors.errorContainer,
-                    shape = RoundedCornerShape(8.dp)
+                FilledTonalIconButton(
+                    onClick = onDelete,
+                    colors = IconButtonDefaults.filledTonalIconButtonColors(
+                        containerColor = colors.errorContainer,
+                        contentColor = colors.onErrorContainer
+                    )
                 ) {
-                    IconButton(onClick = onDelete) {
-                        Icon(
-                            imageVector = Icons.Default.Delete,
-                            contentDescription = "Eliminar",
-                            tint = colors.onErrorContainer
-                        )
-                    }
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = "Eliminar"
+                    )
                 }
             }
         }

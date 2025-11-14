@@ -20,6 +20,7 @@ import cl.duoc.dsy1105.pasteleriamilsabores.ui.screens.*
 import cl.duoc.dsy1105.pasteleriamilsabores.viewmodel.*
 
 sealed class AppScreen(val route: String) {
+    data object SplashScreen : AppScreen("splash")
     data object CatalogScreen : AppScreen("catalog")
     data object LoginScreen : AppScreen("login")
     data object RegisterScreen : AppScreen("register")
@@ -62,7 +63,10 @@ class ProductVMFactory(private val productRepository: ProductRepository) : ViewM
 }
 
 @Composable
-fun AppNavigation() {
+fun AppNavigation(
+    darkTheme: Boolean,
+    onThemeChange: (Boolean) -> Unit
+) {
     val navController = rememberNavController()
 
     val userRepository = remember { UserRepository() }
@@ -82,8 +86,18 @@ fun AppNavigation() {
 
     NavHost(
         navController = navController,
-        startDestination = AppScreen.CatalogScreen.route
+        startDestination = AppScreen.SplashScreen.route
     ) {
+        composable(route = AppScreen.SplashScreen.route) {
+            SplashScreen(
+                onNavigateToCatalog = {
+                    navController.navigate(AppScreen.CatalogScreen.route) {
+                        popUpTo(AppScreen.SplashScreen.route) { inclusive = true }
+                    }
+                }
+            )
+        }
+
         composable(route = AppScreen.CatalogScreen.route) {
             val currentUser by userSessionViewModel.currentUserState.collectAsStateWithLifecycle()
             CatalogScreen(
@@ -94,7 +108,9 @@ fun AppNavigation() {
                 onCartClick = { navController.navigate(AppScreen.CartScreen.route) },
                 cartViewModel = cartViewModel,
                 onProductClick = { id -> navController.navigate(AppScreen.ProductDetail.createRoute(id)) },
-                productViewModel = productViewModel
+                productViewModel = productViewModel,
+                darkTheme = darkTheme,
+                onThemeChange = onThemeChange
             )
         }
 
@@ -118,7 +134,7 @@ fun AppNavigation() {
             CarritoScreen(
                 onBack = { navController.popBackStack() },
                 viewModel = cartViewModel,
-                productViewModel = productViewModel   // ✅ PASAMOS productos desde Room
+                productViewModel = productViewModel
             )
         }
 
@@ -127,6 +143,7 @@ fun AppNavigation() {
             LoginScreen(
                 loginViewModel = loginViewModel,
                 onRegisterClick = { navController.navigate(AppScreen.RegisterScreen.route) },
+                onBackToCatalog = { navController.navigate(AppScreen.CatalogScreen.route) },
                 onLoginSuccess = { user ->
                     userSessionViewModel.onLoginSuccess(user)
                     navController.navigate(AppScreen.UserProfileScreen.route) {
@@ -141,6 +158,7 @@ fun AppNavigation() {
             RegisterScreen(
                 registerViewModel = registerViewModel,
                 onLoginClick = { navController.popBackStack() },
+                onBackToCatalog = { navController.navigate(AppScreen.CatalogScreen.route) },
                 onRegisterSuccess = { user ->
                     userSessionViewModel.onLoginSuccess(user)
                     navController.navigate(AppScreen.UserProfileScreen.route) {
@@ -155,6 +173,8 @@ fun AppNavigation() {
             UserProfileScreen(
                 userSessionViewModel = userSessionViewModel,
                 onNavigateBack = { navController.popBackStack() },
+                darkTheme = darkTheme,
+                onThemeChange = onThemeChange,
                 onLogout = {
                     userSessionViewModel.logout()
                     navController.navigate(AppScreen.CatalogScreen.route) {

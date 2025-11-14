@@ -19,8 +19,10 @@ import cl.duoc.dsy1105.pasteleriamilsabores.viewmodel.UserSessionViewModel
 fun UserProfileScreen(
     userSessionViewModel: UserSessionViewModel,
     onNavigateBack: () -> Unit,
+    darkTheme: Boolean,
+    onThemeChange: (Boolean) -> Unit,
     onLogout: () -> Unit,
-    onAdminPanelClick: () -> Unit  // ← NUEVO PARÁMETRO
+    onAdminPanelClick: () -> Unit
 ) {
     val user by userSessionViewModel.currentUserState.collectAsStateWithLifecycle()
     val currentUser = user
@@ -85,9 +87,42 @@ fun UserProfileScreen(
                     readOnly = !isEditing
                 )
 
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
+                // TOGGLE DARK MODE
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                    )
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column {
+                            Text(
+                                text = if (darkTheme) "Modo Oscuro" else "Modo Claro",
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                            Text(
+                                text = "Cambia el tema de la app",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        Switch(
+                            checked = darkTheme,
+                            onCheckedChange = onThemeChange
+                        )
+                    }
+                }
+
                 Spacer(modifier = Modifier.weight(1f))
 
-                // ============ NUEVO: Botón Panel de Administración ============
                 if (currentUser.isAdmin) {
                     Button(
                         onClick = onAdminPanelClick,
@@ -99,8 +134,6 @@ fun UserProfileScreen(
                         Text("Panel de Administración", style = MaterialTheme.typography.titleMedium)
                     }
                 }
-
-                // ==============================================================
 
                 Button(
                     onClick = {
