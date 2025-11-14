@@ -78,7 +78,8 @@ fun AppNavigation(
 
     val cartViewModel: CartViewModel = viewModel(factory = CartVMFactory(db.cartDao()))
 
-    val productRepository = remember { ProductRepository(db.productDao()) }
+    // CAMBIO: Ahora ProductRepository recibe también CartDao
+    val productRepository = remember { ProductRepository(db.productDao(), db.cartDao()) }
     val productVmFactory = remember { ProductVMFactory(productRepository) }
     val productViewModel: ProductViewModel = viewModel(factory = productVmFactory)
 
@@ -143,7 +144,11 @@ fun AppNavigation(
             LoginScreen(
                 loginViewModel = loginViewModel,
                 onRegisterClick = { navController.navigate(AppScreen.RegisterScreen.route) },
-                onBackToCatalog = { navController.navigate(AppScreen.CatalogScreen.route) },
+                onBackToCatalog = {
+                    navController.navigate(AppScreen.CatalogScreen.route) {
+                        popUpTo(AppScreen.LoginScreen.route) { inclusive = true }
+                    }
+                },
                 onLoginSuccess = { user ->
                     userSessionViewModel.onLoginSuccess(user)
                     navController.navigate(AppScreen.UserProfileScreen.route) {
@@ -158,7 +163,11 @@ fun AppNavigation(
             RegisterScreen(
                 registerViewModel = registerViewModel,
                 onLoginClick = { navController.popBackStack() },
-                onBackToCatalog = { navController.navigate(AppScreen.CatalogScreen.route) },
+                onBackToCatalog = {
+                    navController.navigate(AppScreen.CatalogScreen.route) {
+                        popUpTo(AppScreen.RegisterScreen.route) { inclusive = true }
+                    }
+                },
                 onRegisterSuccess = { user ->
                     userSessionViewModel.onLoginSuccess(user)
                     navController.navigate(AppScreen.UserProfileScreen.route) {
