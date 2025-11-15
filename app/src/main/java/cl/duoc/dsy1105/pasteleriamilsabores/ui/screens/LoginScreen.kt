@@ -6,16 +6,17 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -35,6 +36,33 @@ fun LoginScreen(
 ) {
     val uiState by loginViewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
+
+    var emailError by remember { mutableStateOf<String?>(null) }
+    var passwordError by remember { mutableStateOf<String?>(null) }
+    var passwordVisible by remember { mutableStateOf(false) }
+
+    fun validarEmail(valor: String): String? {
+        return when {
+            valor.isBlank() -> "El email es obligatorio"
+            !android.util.Patterns.EMAIL_ADDRESS.matcher(valor).matches() ->
+                "El email no tiene un formato válido"
+            else -> null
+        }
+    }
+
+    fun validarPassword(valor: String): String? {
+        return when {
+            valor.isBlank() -> "La contraseña es obligatoria"
+            valor.length < 6 -> "La contraseña debe tener al menos 6 caracteres"
+            else -> null
+        }
+    }
+
+    fun validarFormulario(): Boolean {
+        emailError = validarEmail(uiState.email)
+        passwordError = validarPassword(uiState.password)
+        return emailError == null && passwordError == null
+    }
 
     LaunchedEffect(key1 = true) {
         loginViewModel.loginEvent.collectLatest { event ->
@@ -61,40 +89,71 @@ fun LoginScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(space = 20.dp)
         ) {
-            Text(
-                "🧁",
-                fontSize = 48.sp
-            )
+            Text("🧁", fontSize = 48.sp)
+
             Text(
                 "Pastelería Mil Sabores",
                 style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
                 textAlign = TextAlign.Center
             )
+
             Text("Bienvenido", style = MaterialTheme.typography.bodyLarge, textAlign = TextAlign.Center)
 
             OutlinedTextField(
                 value = uiState.email,
-                onValueChange = loginViewModel::onEmailChange,
+                onValueChange = {
+                    loginViewModel.onEmailChange(it)
+                    emailError = validarEmail(it)
+                },
                 label = { Text("Email") },
                 leadingIcon = { Icon(Icons.Default.Email, contentDescription = null) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                isError = emailError != null,
+                supportingText = {
+                    emailError?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+                }
             )
+
             OutlinedTextField(
                 value = uiState.password,
-                onValueChange = loginViewModel::onPasswordChange,
+                onValueChange = {
+                    loginViewModel.onPasswordChange(it)
+                    passwordError = validarPassword(it)
+                },
                 label = { Text("Contraseña") },
                 leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
-                visualTransformation = PasswordVisualTransformation(),
+                trailingIcon = {
+                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                        Icon(
+                            imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                            contentDescription = if (passwordVisible) "Ocultar contraseña" else "Mostrar contraseña"
+                        )
+                    }
+                },
+                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                isError = passwordError != null,
+                supportingText = {
+                    passwordError?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+                }
             )
+
             Button(
-                onClick = loginViewModel::login,
-                modifier = Modifier.fillMaxWidth()
+                onClick = {
+                    if (validarFormulario()) {
+                        loginViewModel.login()
+                    }
+                },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = uiState.email.isNotBlank() && uiState.password.isNotBlank()
             ) {
                 Text("Iniciar Sesión")
             }
+
             TextButton(onClick = onRegisterClick) {
                 Text("¿No tienes cuenta? Regístrate")
             }
