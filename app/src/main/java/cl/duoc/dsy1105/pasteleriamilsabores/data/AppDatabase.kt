@@ -45,6 +45,7 @@ abstract class AppDatabase : RoomDatabase() {
                     "pasteleria_db"
                 )
                     .addMigrations(MIGRATION_1_2)
+                    .fallbackToDestructiveMigrationOnDowngrade(dropAllTables = true)
                     .build()
                     .also { INSTANCE = it }
             }
