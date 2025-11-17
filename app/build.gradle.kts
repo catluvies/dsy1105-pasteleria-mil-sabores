@@ -75,4 +75,10 @@ dependencies {
 
     // Coil para cargar imágenes desde URI
     implementation("io.coil-kt:coil-compose:2.5.0")
+
+    // Retrofit para consumir APIs REST
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+    implementation(libs.okhttp)
+    implementation(libs.logging.interceptor)
 }
