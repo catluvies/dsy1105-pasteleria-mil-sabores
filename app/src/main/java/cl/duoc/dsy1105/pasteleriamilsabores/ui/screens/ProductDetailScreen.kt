@@ -7,6 +7,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.RateReview
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
@@ -30,6 +31,7 @@ fun ProductDetailsScreen(
     product: Product,
     onBack: () -> Unit,
     onCartClick: () -> Unit,
+    onReviewsClick: () -> Unit,
     cartViewModel: CartViewModel
 ) {
     val colors = MaterialTheme.colorScheme
@@ -127,6 +129,23 @@ fun ProductDetailsScreen(
                 style = MaterialTheme.typography.bodyMedium,
                 color = colors.onSurfaceVariant
             )
+
+            // Botón para ver reseñas de clientes
+            OutlinedButton(
+                onClick = onReviewsClick,
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = colors.primary
+                )
+            ) {
+                Icon(
+                    imageVector = Icons.Default.RateReview,
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Ver Reseñas de Clientes")
+            }
 
             Row(
                 modifier = Modifier.fillMaxWidth(),

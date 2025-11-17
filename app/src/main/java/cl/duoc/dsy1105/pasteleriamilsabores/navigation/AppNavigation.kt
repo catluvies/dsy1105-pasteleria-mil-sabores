@@ -37,6 +37,9 @@ sealed class AppScreen(val route: String) {
     data object EditProduct : AppScreen("edit_product/{id}") {
         fun createRoute(id: Int) = "edit_product/$id"
     }
+    data object Reviews : AppScreen("reviews/{productName}") {
+        fun createRoute(productName: String) = "reviews/$productName"
+    }
 }
 
 @Suppress("UNCHECKED_CAST")
@@ -125,6 +128,9 @@ fun AppNavigation(
                     product = product,
                     onBack = { navController.popBackStack() },
                     onCartClick = { navController.navigate(AppScreen.CartScreen.route) },
+                    onReviewsClick = {
+                        navController.navigate(AppScreen.Reviews.createRoute(product.name))
+                    },
                     cartViewModel = cartViewModel
                 )
             } else {
@@ -271,6 +277,14 @@ fun AppNavigation(
             } else {
                 navController.popBackStack()
             }
+        }
+
+        composable(route = AppScreen.Reviews.route) { backStackEntry ->
+            val productName = backStackEntry.arguments?.getString("productName") ?: "Producto"
+            ReviewsScreen(
+                productName = productName,
+                onNavigateBack = { navController.popBackStack() }
+            )
         }
     }
 }
