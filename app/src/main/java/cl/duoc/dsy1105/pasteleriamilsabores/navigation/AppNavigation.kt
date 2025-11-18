@@ -87,7 +87,8 @@ fun AppNavigation(
     val productVmFactory = remember { ProductVMFactory(productRepository) }
     val productViewModel: ProductViewModel = viewModel(factory = productVmFactory)
 
-    LaunchedEffect(Unit) { productViewModel.seedIfEmpty(sampleProductList) }
+    // Ya no usamos SampleData - los productos vienen del backend
+    // LaunchedEffect(Unit) { productViewModel.seedIfEmpty(sampleProductList) }
 
     NavHost(
         navController = navController,

@@ -27,7 +27,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import cl.duoc.dsy1105.pasteleriamilsabores.data.sampleProductList
 import cl.duoc.dsy1105.pasteleriamilsabores.ui.components.ProductCard
 import cl.duoc.dsy1105.pasteleriamilsabores.viewmodel.CartViewModel
 import cl.duoc.dsy1105.pasteleriamilsabores.viewmodel.ProductViewModel
@@ -44,9 +43,10 @@ fun CatalogScreen(
     darkTheme: Boolean,
     onThemeChange: (Boolean) -> Unit
 ) {
-    LaunchedEffect(Unit) {
-        productViewModel.seedIfEmpty(sampleProductList)
-    }
+    // Ya no usamos SampleData - los productos vienen del backend
+    // LaunchedEffect(Unit) {
+    //     productViewModel.seedIfEmpty(sampleProductList)
+    // }
 
     val products = productViewModel.products.collectAsStateWithLifecycle().value
     val cartItems = cartViewModel.cartItems.collectAsStateWithLifecycle().value
@@ -147,23 +147,54 @@ fun CatalogScreen(
             }
         }
     ) { innerPadding ->
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            state = gridState,
-            modifier = Modifier
-                .padding(innerPadding)
-                .padding(horizontal = 8.dp),
-            contentPadding = PaddingValues(top = 8.dp, bottom = 88.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            items(products, key = { it.id }) { product ->
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { onProductClick(product.id) }
+        if (products.isEmpty()) {
+            // Estado vacío cuando no hay productos
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.padding(32.dp)
                 ) {
-                    ProductCard(product = product)
+                    Text(
+                        text = "🍰",
+                        style = MaterialTheme.typography.displayLarge
+                    )
+                    Text(
+                        text = "Catálogo vacío",
+                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
+                        text = "Pronto tendremos deliciosos productos disponibles",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        } else {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                state = gridState,
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .padding(horizontal = 8.dp),
+                contentPadding = PaddingValues(top = 8.dp, bottom = 88.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(products, key = { it.id }) { product ->
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onProductClick(product.id) }
+                    ) {
+                        ProductCard(product = product)
+                    }
                 }
             }
         }

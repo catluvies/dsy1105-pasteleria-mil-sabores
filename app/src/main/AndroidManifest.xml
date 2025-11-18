@@ -19,7 +19,8 @@
         android:label="@string/app_name"
         android:roundIcon="@drawable/poro_galleta"
         android:supportsRtl="true"
-        android:theme="@style/Theme.PasteleriaMilSabores">
+        android:theme="@style/Theme.PasteleriaMilSabores"
+        android:usesCleartextTraffic="true">
 
         <!-- NUEVO: FileProvider para compartir archivos de la cámara -->
         <provider

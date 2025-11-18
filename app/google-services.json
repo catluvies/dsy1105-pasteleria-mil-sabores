@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "820251749994",
+    "project_id": "pasteleriamilsabores-d11c1",
+    "storage_bucket": "pasteleriamilsabores-d11c1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:820251749994:android:5a9079e33841111c3e2413",
+        "android_client_info": {
+          "package_name": "cl.duoc.dsy1105.pasteleriamilsabores"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAkVbFp4snHguSCrNs0Sy8UlGJNBGB7SoU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

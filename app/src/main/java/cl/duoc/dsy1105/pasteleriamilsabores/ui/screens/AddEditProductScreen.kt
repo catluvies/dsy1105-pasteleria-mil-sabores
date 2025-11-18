@@ -5,7 +5,6 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -21,7 +20,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
@@ -29,7 +27,9 @@ import androidx.core.content.FileProvider
 import cl.duoc.dsy1105.pasteleriamilsabores.R
 import cl.duoc.dsy1105.pasteleriamilsabores.model.Product
 import cl.duoc.dsy1105.pasteleriamilsabores.viewmodel.ProductViewModel
+import cl.duoc.dsy1105.pasteleriamilsabores.utils.FirebaseStorageHelper
 import coil.compose.AsyncImage
+import kotlinx.coroutines.launch
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -44,20 +44,20 @@ fun AddEditProductScreen(
 ) {
     val context = LocalContext.current
 
+    val coroutineScope = rememberCoroutineScope()
+
     var name by remember { mutableStateOf(existingProduct?.name ?: "") }
     var price by remember { mutableStateOf(existingProduct?.price?.toString() ?: "") }
     var description by remember { mutableStateOf(existingProduct?.description ?: "") }
-    var selectedImageResId by remember { mutableStateOf(existingProduct?.imageResId) }
+    var selectedImageUrl by remember { mutableStateOf(existingProduct?.imageUrl) }
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
     var showError by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
     var photoUri by remember { mutableStateOf<Uri?>(null) }
+    var isUploading by remember { mutableStateOf(false) }
 
     val isEditing = existingProduct != null
     val title = if (isEditing) "Editar Producto" else "Agregar Producto"
-
-    // 🔒 Fallback para evitar imageResId = 0
-    val FALLBACK_IMAGE_RES = R.drawable.torta_chocolate
 
     // Galería (URI para preview)
     val galleryLauncher = rememberLauncherForActivityResult(
@@ -65,7 +65,7 @@ fun AddEditProductScreen(
     ) { uri: Uri? ->
         uri?.let {
             selectedImageUri = it
-            selectedImageResId = null
+            selectedImageUrl = null
         }
     }
 
@@ -83,7 +83,7 @@ fun AddEditProductScreen(
         if (success) {
             photoUri?.let {
                 selectedImageUri = it
-                selectedImageResId = null
+                selectedImageUrl = null
             }
         }
     }
@@ -173,13 +173,13 @@ fun AddEditProductScreen(
                                     contentScale = ContentScale.Crop
                                 )
                             }
-                            selectedImageResId != null -> {
-                                val safeRes = if (selectedImageResId != 0) selectedImageResId!! else FALLBACK_IMAGE_RES
-                                Image(
-                                    painter = painterResource(id = safeRes),
+                            selectedImageUrl != null -> {
+                                AsyncImage(
+                                    model = selectedImageUrl,
                                     contentDescription = "Imagen del producto",
                                     modifier = Modifier.fillMaxSize(),
-                                    contentScale = ContentScale.Crop
+                                    contentScale = ContentScale.Crop,
+                                    error = coil.compose.rememberAsyncImagePainter(R.drawable.torta_chocolate)
                                 )
                             }
                             else -> {
@@ -323,39 +323,68 @@ fun AddEditProductScreen(
                                 showError = true
                                 errorMessage = "El precio debe ser un número válido"
                             }
-                            selectedImageResId == null && selectedImageUri == null && !isEditing -> {
+                            selectedImageUrl == null && selectedImageUri == null && !isEditing -> {
                                 showError = true
                                 errorMessage = "Debes seleccionar una imagen"
                             }
                             else -> {
                                 showError = false
+                                isUploading = true
 
-                                // Guardamos SIEMPRE con un imageResId válido (fallback si no hay)
-                                val imageRes = selectedImageResId
-                                    ?: existingProduct?.imageResId
-                                    ?: FALLBACK_IMAGE_RES
+                                coroutineScope.launch {
+                                    try {
+                                        // Si hay una imagen nueva seleccionada, subirla a Firebase
+                                        val imageUrl = if (selectedImageUri != null) {
+                                            val uploadResult = FirebaseStorageHelper.uploadImage(selectedImageUri!!, context)
+                                            if (uploadResult.isSuccess) {
+                                                uploadResult.getOrNull()!!
+                                            } else {
+                                                throw uploadResult.exceptionOrNull() ?: Exception("Error al subir imagen")
+                                            }
+                                        } else {
+                                            // Usar la URL existente o placeholder
+                                            selectedImageUrl
+                                                ?: existingProduct?.imageUrl
+                                                ?: "https://via.placeholder.com/300/8B4513/FFFFFF?text=Sin+Imagen"
+                                        }
 
-                                val productToSave = Product(
-                                    id = existingProduct?.id ?: productViewModel.getNextProductId(),
-                                    name = name,
-                                    description = description,
-                                    price = price.toInt(),
-                                    imageResId = imageRes
-                                )
+                                        val productToSave = Product(
+                                            id = existingProduct?.id ?: 0, // 0 = nuevo producto, backend genera el ID
+                                            name = name,
+                                            description = description,
+                                            price = price.toInt(),
+                                            imageUrl = imageUrl
+                                        )
 
-                                if (isEditing) {
-                                    productViewModel.updateProduct(productToSave)
-                                } else {
-                                    productViewModel.addProduct(productToSave)
+                                        if (isEditing) {
+                                            productViewModel.updateProduct(productToSave)
+                                        } else {
+                                            productViewModel.addProduct(productToSave)
+                                        }
+
+                                        isUploading = false
+                                        onSaveSuccess()
+                                    } catch (e: Exception) {
+                                        isUploading = false
+                                        showError = true
+                                        errorMessage = "Error al guardar: ${e.message}"
+                                    }
                                 }
-
-                                onSaveSuccess()
                             }
                         }
                     },
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    enabled = !isUploading
                 ) {
-                    Text(if (isEditing) "Guardar Cambios" else "Guardar Producto")
+                    if (isUploading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(20.dp),
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            strokeWidth = 2.dp
+                        )
+                    } else {
+                        Text(if (isEditing) "Guardar Cambios" else "Guardar Producto")
+                    }
                 }
             }
         }

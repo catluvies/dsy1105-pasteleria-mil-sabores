@@ -19,6 +19,9 @@ interface ProductDao {
     @Query("DELETE FROM products WHERE id = :id")
     suspend fun delete(id: Int)
 
+    @Query("DELETE FROM products")
+    suspend fun deleteAll()
+
     @Query("SELECT COUNT(*) FROM products")
     suspend fun count(): Int
 

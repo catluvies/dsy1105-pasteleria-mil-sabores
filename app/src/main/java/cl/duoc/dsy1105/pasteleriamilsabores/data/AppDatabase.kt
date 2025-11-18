@@ -11,7 +11,7 @@ import cl.duoc.dsy1105.pasteleriamilsabores.model.Product
 
 @Database(
     entities = [CartItem::class, Product::class],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -37,14 +37,33 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        private val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    CREATE TABLE products_new(
+                        id INTEGER NOT NULL PRIMARY KEY,
+                        name TEXT NOT NULL,
+                        description TEXT NOT NULL,
+                        price INTEGER NOT NULL,
+                        imageUrl TEXT NOT NULL
+                    )
+                    """.trimIndent()
+                )
+
+                db.execSQL("DROP TABLE products")
+                db.execSQL("ALTER TABLE products_new RENAME TO products")
+            }
+        }
+
         fun getDatabase(context: Context): AppDatabase =
             INSTANCE ?: synchronized(this) {
                 Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,
-                    "pasteleria_db"
+                    "pasteleria_db_v3"
                 )
-                    .addMigrations(MIGRATION_1_2)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
                     .fallbackToDestructiveMigrationOnDowngrade(dropAllTables = true)
                     .build()
                     .also { INSTANCE = it }

@@ -17,6 +17,20 @@ class ProductViewModel(
     val products: StateFlow<List<Product>> =
         repo.products.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
+    init {
+        // Sincronizar con backend al iniciar
+        syncWithBackend()
+    }
+
+    /**
+     * Sincroniza productos desde el backend
+     */
+    fun syncWithBackend() {
+        viewModelScope.launch {
+            repo.syncProductsFromBackend()
+        }
+    }
+
     fun addProduct(product: Product) {
         viewModelScope.launch { repo.addProduct(product) }
     }
