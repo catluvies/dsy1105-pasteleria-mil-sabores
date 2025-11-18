@@ -18,9 +18,9 @@ class CartTest {
         // Initialize a fresh cart and product list before each test
         cart = ShoppingCart()
         products = listOf(
-            Product(1, "Torta de Chocolate", "Bizcocho húmedo con ganache", 15990, 0),
-            Product(2, "Pie de Limón", "Suave y fresco", 12990, 0),
-            Product(3, "Cupcake de Vainilla", "Decorado con crema pastelera", 2990, 0)
+            Product(1, "Torta de Chocolate", "Bizcocho húmedo con ganache", 15990, ""),
+            Product(2, "Pie de Limón", "Suave y fresco", 12990, ""),
+            Product(3, "Cupcake de Vainilla", "Decorado con crema pastelera", 2990, "")
         )
     }
 
