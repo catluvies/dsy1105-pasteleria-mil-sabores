@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit
 object RetrofitClient {
 
     // URL base del backend (10.0.2.2 es localhost desde el emulador)
-    private const val BASE_URL = "http://10.0.2.2:8080/api/"
+    private const val BASE_URL = "https://pasteleria.anyararosso.com/api/"
 
     // Logging interceptor para debugging
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
